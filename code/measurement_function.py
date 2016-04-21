@@ -12,7 +12,7 @@ import matplotlib.cm as cm  # color bar, to plot
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from matplotlib.backends.backend_pdf  import PdfPages
-
+import matplotlib.patches as patches
 
 pp=PdfPages("wfirst_psf.pdf")
 
@@ -31,7 +31,7 @@ def my_imshow(im, ax=None, **kwargs):
     return img
 
 
-def measurement_function(profile, noise=None, beta=3.566e-7, base_size='1024', type='nl', n='6', pixel_scale=0.11,  new_params=galsim.hsm.HSMParams(max_amoment=60000000, max_mom2_iter=10000000,  max_moment_nsig2=10000)):
+def measurement_function(profile, noise=None, beta=3.566e-7, base_size='1024', type='nl', n='3', offset = (0.,0.), pixel_scale=0.11,  new_params=galsim.hsm.HSMParams(max_amoment=60000000, max_mom2_iter=10000000000,  max_moment_nsig2=25)):
     """
     This function receives a GSObject profile and applies one of the two sensor effects: 
     1) NL (cuadratic, with a single /beta parameter)
@@ -40,10 +40,30 @@ def measurement_function(profile, noise=None, beta=3.566e-7, base_size='1024', t
     Return: None, it is a void function. But the input vectors e1_inter_vec=[], e2_inter_vec=[], size_inter_vec=[] should be filled.
     
     """
+    
+    
+    #print "INSIDE meas. function: ", beta
+    
+    # Figure out how many times we are going to go through the whole rendering process
+    # Even if n_offsets = 0, we are going to draw once.
+    #if n_offsets == 0:
+    #    n_iter = 1
+    #else:
+    #    n_iter = n_offsets
+    
+    draw_wfirst_psf=False
+    #offset_input=(0.0, 0.0)
 
     if type == 'nl':
         method='oversampling'
+        #method='interleaving'   # Just temporal
+        #f=lambda  x,beta : x - beta*x*x*x*x
         f=lambda x,beta : x - beta*x*x
+        #f=lambda x,beta : x - beta*x*x
+        #f=lambda x, (b,g,d) : x + b*x*x + g*x*x*x + d*x*x*x*x
+        #f=lambda x, b : x + b*x*x*x*x   #+ g*x*x*x + d*x*x*x*x
+
+
     elif type == 'bf':
         method='interleaving'
     else:
@@ -56,96 +76,177 @@ def measurement_function(profile, noise=None, beta=3.566e-7, base_size='1024', t
 
         #### Calculate moments without effect
         print "Applied FLUX in electrons: ", profile.getFlux()
-        image=profile.drawImage(image=galsim.Image(base_size, base_size), scale=pixel_scale/n, method='no_pixel')
-        print "Maximum flux: ", np.amax(image.array)
-        print "Flux of image after being drawn (using np.sum(image.array)): ", np.sum(image.array)
-        print image.array.shape
-        image*=n*n
-        print "Maximum flux: ", np.amax(image.array)
-        print "Flux of image after adjusting n*n(using np.sum(image.array)): ", np.sum(image.array)
+        
+        # Do several realizations at differen centroid offsets
+        
+        """
+        vec_ud=[]
+        for ind in range(n_iter):
+            ud=galsim.UniformDeviate()
+            vec_ud.append(ud)
+            if n_offsets > 0:
+                offset=(ud(), ud())
+                # For the high-res image, have to find how many high-res pixels the offset is, and then take
+                # only the sub-pixel part.
+                offset_highres = (offset[0]*n % 1, offset[1]*n % 1)
+            else:
+                offset = (0., 0.)
+                offset_highres = (0., 0.)
+    
+            image=profile.drawImage(image=galsim.Image(base_size, base_size, dtype=np.float64 ), scale=pixel_scale/n, method='no_pixel', offset=offset_highres)
+            #print "Maximum flux: ", np.amax(image.array)
+            #print "Flux of image after being drawn (using np.sum(image.array)): ", np.sum(image.array)
+            #print image.array.shape
+            image_mult=(n*n)*image
+            #print "Maximum flux: ", np.amax(image.array)
+            #print "Flux of image after adjusting n*n(using np.sum(image.array)): ", np.sum(image.array)
+            if ind == 0:
+                image_sum= image_mult
+            else:
+                image_sum+=image_mult
+                
+
+        image=image_sum/float(n_iter)
+        """
+        offset= (0.0, 0.0)
+        print "Offset: ", offset
+        image=profile.drawImage(image=galsim.Image(base_size, base_size, dtype=np.float64), scale=pixel_scale/n, method='no_pixel', offset=offset)
+
+        image=(n*n)*image
         #image
         #sys.exit()
         
         #if not noise == None:
         #    read_noise = galsim.GaussianNoise(sigma=noise/(n**2))
         #    image.addNoise(read_noise)
+        # IMAGE
+        if draw_wfirst_psf == True:
+            k=64
+            delta=15
+            bm, bp = 0.5*(1.5*k)-delta, 0.5*(1.5*k) + delta
+            bounds=galsim.BoundsI(bm,bp,bm,bp)
+            before=image[bounds].array
 
+            fig=plt.figure()
+            ax=fig.add_subplot(223)
+            plt.imshow(before, cmap='cubehelix', norm=LogNorm(), interpolation='nearest' )
+            ax.get_xaxis().set_ticks([])
+            ax.get_yaxis().set_ticks([])
+            ax.set_title ('Y106: no NL (core)')
+            plt.colorbar()
 
-        """
-        before=image.array
-        fig=plt.figure()
-        ax=fig.add_subplot(221)
-        plt.imshow(before, cmap='cubehelix', norm=LogNorm())
-        ax.get_xaxis().set_ticks([])
-        ax.get_yaxis().set_ticks([])
-        ax.set_title ('J129: no VNL')
-        plt.colorbar()
-        """
+            before_all=image.array
+            ax=fig.add_subplot(221)
+            plt.imshow((before_all), cmap='cubehelix', norm=LogNorm(), interpolation='nearest')
+            plt.colorbar()
+            ax.get_xaxis().set_ticks([])
+            ax.get_yaxis().set_ticks([])
+            ax.set_title ('Y106: no NL (full stamp)')
+            ax.add_patch( patches.Rectangle( (0.5*(1.5*k) - delta, 0.5*(1.5*k) - delta),2*delta,2*delta, fill=False))
+
+        
+        #IMAGE
 
         results=image.FindAdaptiveMom(hsmparams=new_params)
         ref_e1=results.observed_shape.e1
         ref_e2=results.observed_shape.e2
         ref_s=results.moments_sigma
-        print "Image shape, before interleave: ", image.array.shape
+        #print "Image shape, before interleave: ", image.array.shape
         print "ref_e1, ref_e2, ref_s", ref_e1, ref_e2, ref_s
-
+        
         #### Calculate moments with the effect
+        
+        
+        """
+        # Do several realizations at differen centroid offsets
+        for ind in range(n_iter):
+            #ud=galsim.UniformDeviate()
+            ud=vec_ud[ind]
+            if n_offsets > 0:
+                offset=(ud(), ud())
+                # For the high-res image, have to find how many high-res pixels the offset is, and then take
+                # only the sub-pixel part.
+                offset_highres = (offset[0]*n % 1, offset[1]*n % 1)
+            else:
+                offset = (0., 0.)
+                offset_highres = (0., 0.)
+            
+            image=profile.drawImage(image=galsim.Image(base_size, base_size), scale=pixel_scale/n, method='no_pixel', offset=offset_highres)
+            #print "Maximum flux: ", np.amax(image.array)
+            #print "Flux of image after being drawn (using np.sum(image.array)): ", np.sum(image.array)
+            #print image.array.shape
+            image_mult=(n*n)*image
+            #print "Maximum flux: ", np.amax(image.array)
+            #print "Flux of image after adjusting n*n(using np.sum(image.array)): ", np.sum(image.array)
+            if ind == 0:
+                image_sum= image_mult
+            else:
+                image_sum+=image_mult
 
-        image=profile.drawImage(image=galsim.Image(base_size, base_size), scale=pixel_scale/n, method='no_pixel')
-        if not noise == None:
-            read_noise = galsim.GaussianNoise(sigma=noise/(n**2))
-            image.addNoise(read_noise)
-        print "Flux of image after being drawn (using np.sum(image.array)): ", np.sum(image.array)
-
-        #image*=n*n
-        #print "Image.added_flux after image/=n*n", image.added_flux
-        image*=n*n   ###  need to adjust flux per pixel
-
+        image=image_sum/float(n_iter)
+        """
+        image=profile.drawImage(image=galsim.Image(base_size, base_size, dtype=np.float64), scale=pixel_scale/n, method='no_pixel', offset=offset)
+        image=(n*n)*image
         image.applyNonlinearity(f,beta)
         #sys.exit()
         print "Flux of image after VNL (using np.sum(image.array)): ", np.sum(image.array)
 
-        """
-        #my_imshow(image.array)
-        #plt.imshow(image.array, cmap='gray', norm=LogNorm())
-        #plt.colorbar()
-        #pp.savefig()
-        after=image.array
-        ax=fig.add_subplot(222)
-        plt.imshow(after, cmap='cubehelix', norm=LogNorm())
-        ax.get_xaxis().set_ticks([])
-        ax.get_yaxis().set_ticks([])
-        ax.set_title ('J129: with VNL')
-        plt.colorbar()
+
+        if draw_wfirst_psf == True:
+            # IMAGE
+            after=image[bounds].array
+            print "drawing fractional difference "
+            diff= (before - after)/before # VNL attenuates
+            ax=fig.add_subplot(122)
+            #ax=plt.subplot2grid ( (2,2), (1,1), colspan=2 )
+            #ax.set_position ([0.1, 0.5, 0.5, 0.5])
+            #print "diff: ", diff
+            #sys.exit()
+            plt.imshow((diff), cmap='gnuplot2', norm=LogNorm(), interpolation='nearest')
+            plt.colorbar()
+            ax.get_xaxis().set_ticks([])
+            ax.get_yaxis().set_ticks([])
+            ax.set_title ('NL vs no NL: \n fractional difference (core)')
+
+            plt.tight_layout()
+            pp.savefig()
+            pp.close()
+            sys.exit()
+        
+        #IMAGE
 
 
-        diff= (before - after)/before # VNL attenuates
-        #ax=fig.add_subplot(212)
-        ax=plt.subplot2grid ( (2,2), (1,1), colspan=2 )
-        #ax.set_position ([0.1, 0.5, 0.5, 0.5])
-        plt.imshow(diff, cmap='cubehelix', norm=LogNorm())
-        ax.get_xaxis().set_ticks([])
-        ax.get_yaxis().set_ticks([])
-        ax.set_title ('fractional difference')
-        plt.colorbar()
-
-        plt.tight_layout()
-        pp.savefig()
-
-
-        pp.close()
-        sys.exit()
-        """
+        #results=image.FindAdaptiveMom(hsmparams=new_params)
+        #print "results.observed_shape.e1, results.observed_shape.e2, results.moments_sigma ", results.observed_shape.e1, results.observed_shape.e2, results.moments_sigma
+        #print "Differences: ", results.observed_shape.e1 - ref_e1, results.observed_shape.e2 - ref_e2, (results.moments_sigma - ref_s) / ref_s
+        # Output values
+        #e1_out=results.observed_shape.e1 - ref_e1
+        #e2_out=results.observed_shape.e2 - ref_e2
+        #size_out=(results.moments_sigma - ref_s) / ref_s
+        #return e1_out, e2_out, size_out
 
 
         results=image.FindAdaptiveMom(hsmparams=new_params)
-        print "results.observed_shape.e1, results.observed_shape.e2, results.moments_sigma ", results.observed_shape.e1, results.observed_shape.e2, results.moments_sigma
-        print "Differences: ", results.observed_shape.e1 - ref_e1, results.observed_shape.e2 - ref_e2, (results.moments_sigma - ref_s) / ref_s
+        obs_e1=(results.observed_shape.e1)
+        obs_e2=(results.observed_shape.e2)
+        obs_s=(results.moments_sigma)
+
+
+
+        d_e1=(obs_e1 - ref_e1)
+        d_e2=(obs_e2 - ref_e2)
+        d_s=(obs_s/ref_s -1.)
+        print "obs_e1: %.16g, obs_e2 : %.16g, obs_s: %.16g" %(obs_e1, obs_e2, obs_s)
+        print "Differences: d_e1: %.16g, d_e2 : %.16g, d_s: %.16g" %(d_e1, d_e2, d_s)
+        
         # Output values
-        e1_out=results.observed_shape.e1 - ref_e1
-        e2_out=results.observed_shape.e2 - ref_e2
-        size_out=(results.moments_sigma - ref_s) / ref_s
+        e1_out= d_e1
+        e2_out= d_e2
+        size_out= d_s
+
         return e1_out, e2_out, size_out
+
+
 
     if method == 'interleaving':
         print "METHOD: Interleaving"
@@ -160,8 +261,8 @@ def measurement_function(profile, noise=None, beta=3.566e-7, base_size='1024', t
         
         for j in xrange(n):
             for i in xrange(n):
-                im=galsim.Image(base_size, base_size)
-                offset=galsim.PositionD(-(i+0.5)/n+0.5, -(j+0.5)/n+0.5)
+                im=galsim.Image(base_size, base_size, dtype=np.float64)
+                offset=galsim.PositionD(offset_input[0] - (i+0.5)/n+0.5, offset_input[1] - (j+0.5)/n+0.5)     ## Add randon uniform offset
                 offsets_list.append(offset)
                 #print "Offset: ", offset
                 profile.drawImage(image=im, scale=pixel_scale, offset=offset, method='no_pixel')
@@ -170,6 +271,7 @@ def measurement_function(profile, noise=None, beta=3.566e-7, base_size='1024', t
 
         image=galsim.utilities.interleaveImages(im_list=im_list, N=(n,n), offsets=offsets_list, add_flux=True)
         print "Image shape, after interleave, no effect: ", image.array.shape
+        print "Flux of image after interleave (using np.sum(image.array)): ", np.sum(image.array)
         if not noise == None:
             read_noise = galsim.GaussianNoise(sigma=noise)
             image.addNoise(read_noise)
@@ -187,21 +289,24 @@ def measurement_function(profile, noise=None, beta=3.566e-7, base_size='1024', t
         #create list of images to interleave-no effect
         for j in xrange(n):
             for i in xrange(n):
-                im=galsim.Image(base_size, base_size)
-                offset=galsim.PositionD(-(i+0.5)/n+0.5, -(j+0.5)/n+0.5)
+                im=galsim.Image(base_size, base_size, dtype=np.float64)
+                offset=galsim.PositionD(offset_input[0]  -(i+0.5)/n+0.5, offset_input[1] - (j+0.5)/n+0.5)
                 offsets_list.append(offset)
                 #print "Offset: ", offset
-                profile.drawImage(image=im, scale=pixel_scale, offset=offset, method='no_pixel')
+                im=profile.drawImage(image=im, scale=pixel_scale, offset=offset, method='no_pixel')
                 if type == 'bf':
                     #cd = PowerLawCD(5, 5.e-7, 5.e-7, 1.5e-7, 1.5e-7, 2.5e-7, 2.5e-7, 1.3)
                     (aL,aR,aB,aT) = readmeanmatrices()
-                    cd = galsim.cdModel.BaseCDModel (aL,aR,aB,aT)
+                    cd = galsim.cdmodel.BaseCDModel (aL,aR,aB,aT)
                     im=cd.applyForward(im)
+                elif type == 'nl':
+                    im.applyNonlinearity(f,beta)
                 im_list.append(im)
 
 
         image2=galsim.utilities.interleaveImages(im_list=im_list, N=(n,n), offsets=offsets_list, add_flux=True)
         print "Image shape, after interleave: ", image2.array.shape
+        print "Flux of image after interleave (using np.sum(image.array)): ", np.sum(image.array)
         if not noise == None:
             read_noise = galsim.GaussianNoise(sigma=noise)
             image2.addNoise(read_noise)

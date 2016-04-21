@@ -31,15 +31,20 @@ import galsim.wfirst as wfirst
 filters = wfirst.getBandpasses (AB_zeropoint=True)
 
 
+from multiprocessing import cpu_count
+from multiprocessing import Pool
+
+
+
 #def measurement_function (profile, e1_inter_vec=[], e2_inter_vec=[], size_inter_vec=[], noise=None, string='', type='nl', beta=beta0, ):
     #beta0=3.566e-7
 
 
 ### Parameters
-k=1024
-base_size=2*k ## ??  # galsim.Image(base_size, base_size)
-n=6
-m_zero=20  # 24
+k=64
+base_size=1.5*k  ## ??  # galsim.Image(base_size, base_size)
+n=3
+m_zero=18.3  # 24
 #m_gal=20
 gal_sigma=0.1
 #print "gal_sigma", gal_sigma
@@ -52,44 +57,103 @@ profile_type='wfirst'   # 'gaussian', 'optical', or 'wfirst'
 label_type='lambda'  # 'lambda' or 'ellipticity'
 
 
+dispersion=True  # To make Fig2, dispersion delta vs dispersion beta distribution
+
+
 #lam = 1380. #  NB: don't use lambda - that's a reserved word.
 tel_diam = 2.4
 obscuration_optical=0.3
-beta0=3.566e-7
+#beta0=-3.566e-7
+beta0=5e-7
+#beta0=1e-6
+#gamma0=1e-10
+#delta0=-2.0e-15
+#beta0=0.5e-6
+#gamma0=-0.25e-10
+#delta0=1.5e-15
+#all_params=(beta0, gamma0, delta0)
+#all_params = (beta0, 0., 0.)
+
+### Set one of the following to 1, and the other to whatever you want
+if dispersion:
+    n_realizations=100  ### parameter to control if betas per pixel are drawn from Gaussians. Set to 1 for 'no'.
+else:
+    n_realizations=1
+
+n_offsets=1   ## How many realizatons over centroid shift. At least 1.
 
 
-multi=True #multiprocessing
+sqrt_n=math.sqrt(n_realizations)
+sqrt_offsets=math.sqrt(n_offsets)
+
+
+multi=False #multiprocessing
 if multi:
     from multiprocessing import cpu_count
     processes=cpu_count()
     print "I have ", processes, "cores here"
 
-n_realizations=1   ### parameter to control if betas per pixel are drawn from Gaussians. Set to 1 for 'no'.
+
 
 
 
 if x_var == 'magnitude':# for Delta R/R vs m at fixed beta
-    beta_means=[beta0]
+    #beta0=0.5e-6
+    #gamma0=-0.25e-10
+    #delta0=1.5e-15
+    #beta_means=np.array([ (beta0, gamma0,delta0) ] )
+    #beta_means=(beta0, gamma0,delta0)
+    #beta_sigma=0.12*beta_means
     beta_vec=beta_means
-    mag_gal_vec= [20, 21, 22,23,24]
+    #mag_gal_vec= [20, 21, 22,23] #,24]
+    mag_gal_vec= [18.3, 19, 20, 21, 22] #,24]
+
+    
     e_vec=[ (0., 0.)]#, (0.05, 0.), (0.05, 0.05) ]
 elif x_var == 'beta':
-    beta_means= np.array([ 1e-8*beta0, 0.7*beta0, beta0, 2*beta0, 3*beta0, 3.5*beta0, 4.0*beta0, 4.5*beta0] )
-    beta_sigma=0.12*beta_means
-    beta_vec=[]
+    #beta0 = delta0
+    beta_means= np.array([ 1e-8*beta0, 0.5*beta0, beta0, 2*beta0, 2.5*beta0] )
+
+    if dispersion:
+        beta_means = [1e-8*beta0, 0.1*beta0, 0.5*beta0 , beta0, 2*beta0]  # actually, beta_sigma, not beta
+    
+    
+    #beta_means= np.linspace (-0.5e-6, 1.5e-6, 6)   #beta
+    #beta_means= np.linspace (-1.0e-10, 0.5e-10, 6)  #gamma
+    #beta_means= np.linspace (-1.0e-15, 2.0e-15, 6)   #delta
+    beta_means= np.array([ beta0 ])
+
+    #beta_sigma=5.9e-7   # beta
+    #beta_sigma=5.625e-11  #gamma
+    #beta_sigma=1.35e-15 # delta
+
     beta_vec=beta_means
-    mag_gal_vec= [20 ]# , 20] #, 22, 24]
+    mag_gal_vec= [m_zero]# , 20] #, 22, 24]
     e_vec=[ (0., 0.)]  #    , (0.05, 0.), (0.05, 0.05) ]
 elif x_var == 'mag_and_beta':   # when normalizing deltas by beta, and reporting slope (/delta R/ R/ beta) vs magnitude
-
+    #beta0=0.5e-6  # midpoint from ramge in hilbert 2014
+    #gamma0=-0.25e-10
+    #delta0=1.5e-15
     #Each pixel has its onw beta, drawn from a Gaussian distribution
-    beta_means= np.array([ 0.9*beta0, beta0, 1.1*beta0])#   , 2*beta0, 5*beta0] )
-    #beta_means= np.array([beta0])
-    beta_sigma=0.12*beta_means
+    beta_means= np.array([ (1-0.01)*beta0, beta0, beta0*(1 + 0.01)])#   , 2*beta0, 5*beta0] )
+    #beta_means= np.linspace (gamma0 - 0.01e-10, gamma0 + 0.01e-10, 5)
+    #beta_means= np.linspace (delta0 - 0.01e-15, delta0 + 0.01e-15, 5)
+
+    if dispersion:
+        beta_means = [1e-8*beta0, 0.5*beta0 , beta0]  # actually, beta_sigma, not beta> point to calculate slope
+
+
+
+    #beta_sigma=0.12*beta_means
     beta_vec=[]
     beta_vec=beta_means
-    mag_gal_vec= [20, 21, 22,23,24]
+    mag_gal_vec= [18.3, 19, 20, 21, 22]
+    #if dispersion:
+        #mag_gal_vec = [ 1e-8*beta0, 0.5*beta0, beta0, 2*beta0]  # actually beta
+
+
     e_vec=[ (0., 0.)]
+
 elif x_var == 'ellipticity':
     beta_vec=[ 0., beta0, 1.5*beta0, 5*beta0]
     mag_gal_vec= [20]#, 20, 21, 22,23,24]
@@ -117,13 +181,38 @@ else:
 
 from collections import OrderedDict
 
+
+## Effective wavelengths
+#  ('Y106', 18.3, 276212.53389330785, 100237.70417666467, 100237.70417666467)
+# ('J129', 18.3, 282676.7892946346, 89742.235017183702, 89742.235017183702)
+#  ('F184', 18.3, 183466.88869417104, 38654.372703392037, 38654.372703392037)
+#  ('H158', 18.3, 279228.07239874348, 71890.380293702794, 71890.380293702794)
+
 #Define wavelengths, ellipticities, and magnitudes
 #wavelength_dict=OrderedDict([('Z087',0.869), ('Y106',1.060)  , ('J129',1.293) , ('W149',1.485), ('H158',1.577), ('F184',1.842)])  # in microns
-wavelength_dict=OrderedDict([('J129',1.292), ('Y106',0.873), ('J129',1.292), ('H158',1.577), ('F184',1.837)])  # in microns
-flux_dict={'Y106':3.4470e4 , 'J129':9.5477e4, 'H158':9.5178e4, 'F184':7.1792e4}
+#wavelength_dict=OrderedDict([('J129',1.292), ('Y106',0.873), ('J129',1.292), ('H158',1.577), ('F184',1.837)])  # in microns
+wavelength_dict=OrderedDict([('J129',1.292) , ('Y106',1.060), ('H158',1.577), ('F184',1.837)])  # in microns
+
+#wavelength_dict=OrderedDict([('J129',1.292)])
+
+#wavelength_dict=OrderedDict([('Y106',1.060)])
+
+
+#flux_dict={'Y106':3.4470e4 , 'J129':9.5477e4, 'H158':9.5178e4, 'F184':7.1792e4} # at 20, ETC
+
+# use galsim to get fluxes with WFIRST properties and AB_zeropint
+flux_dict={}
+for bandpass in ['Y106', 'J129', 'H158', 'F184']:
+    f=filters[bandpass]
+    b=galsim.sed.SED(f)
+    c=b.withMagnitude(m_zero, f)
+    flux_dict[bandpass]=c.calculateFlux(f) #30% of largest value will give about 85% of 110k fw.
+
+print "flux_dict: ", flux_dict
+
 #e_vec=[ (0., 0.), (0.05, 0.), (0.05, 0.05) ] #, (0., 0.075), (0.075, 0.), (0.075, 0.075)] #, 0.05, 0.06, 0.07, 0.08]
-new_params = galsim.hsm.HSMParams(max_amoment=6000000, max_mom2_iter=1000000,  max_moment_nsig2=10000)
-big_fft_params = galsim.GSParams(maximum_fft_size=4*k)
+new_params = galsim.hsm.HSMParams(max_amoment=60000000, max_mom2_iter=1000000000,  max_moment_nsig2=25)
+big_fft_params = galsim.GSParams(maximum_fft_size=int(512*k))
 
 
 ## Initialize things
@@ -135,29 +224,58 @@ optical_noise=OrderedDict()
 wfirst_no_noise=OrderedDict()
 wfirst_noise=OrderedDict()
 
-for m in mag_gal_vec:
-    gauss_no_noise[m]=OrderedDict()   #\Delta e1, \Delta e2, \Delta R/R
-    optical_no_noise[m]=OrderedDict()
-    gauss_noise[m]=OrderedDict()
-    optical_noise[m]=OrderedDict()
-    wfirst_no_noise[m]=OrderedDict()
-    wfirst_noise[m]=OrderedDict()
+
+if x_var == 'magnitude':    # Simgle beta, single e, multiple lam, multiple mag. Will plot deltas vs mag
+    for c in beta_means:
+        gauss_no_noise[c]=OrderedDict()   #\Delta e1, \Delta e2, \Delta R/R
+        optical_no_noise[c]=OrderedDict()
+        gauss_noise[c]=OrderedDict()
+        optical_noise[c]=OrderedDict()
+        wfirst_no_noise[c]=OrderedDict()
+        wfirst_noise[c]=OrderedDict()
     
-    for lam in wavelength_dict:
-        gauss_no_noise[m][lam]={}
-        optical_no_noise[m][lam]={}
-        gauss_noise[m][lam]={}
-        optical_noise[m][lam]={}
-        wfirst_no_noise[m][lam]={}
-        wfirst_noise[m][lam]={}
+        for lam in wavelength_dict:
+            gauss_no_noise[c][lam]={}
+            optical_no_noise[c][lam]={}
+            gauss_noise[c][lam]={}
+            optical_noise[c][lam]={}
+            wfirst_no_noise[c][lam]={}
+            wfirst_noise[c][lam]={}
         
-        for e in e_vec:
-            gauss_no_noise[m][lam][e]=[ ([],[])  , ([],[]) , ([],[]) ]   #\Delta e1, \Delta e2, \Delta R/R (second entry is error)
-            optical_no_noise[m][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
-            gauss_noise[m][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
-            optical_noise[m][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
-            wfirst_no_noise[m][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
-            wfirst_noise[m][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
+            for e in e_vec:
+                gauss_no_noise[c][lam][e]=[ ([],[])  , ([],[]) , ([],[]) ]   #\Delta e1, \Delta e2, \Delta R/R (second entry is error)
+                optical_no_noise[c][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
+                gauss_noise[c][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
+                optical_noise[c][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
+                wfirst_no_noise[c][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
+                wfirst_noise[c][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
+
+else:
+
+    for m in mag_gal_vec:
+        gauss_no_noise[m]=OrderedDict()   #\Delta e1, \Delta e2, \Delta R/R
+        optical_no_noise[m]=OrderedDict()
+        gauss_noise[m]=OrderedDict()
+        optical_noise[m]=OrderedDict()
+        wfirst_no_noise[m]=OrderedDict()
+        wfirst_noise[m]=OrderedDict()
+        
+        for lam in wavelength_dict:
+            gauss_no_noise[m][lam]={}
+            optical_no_noise[m][lam]={}
+            gauss_noise[m][lam]={}
+            optical_noise[m][lam]={}
+            wfirst_no_noise[m][lam]={}
+            wfirst_noise[m][lam]={}
+            
+            for e in e_vec:
+                gauss_no_noise[m][lam][e]=[ ([],[])  , ([],[]) , ([],[]) ]   #\Delta e1, \Delta e2, \Delta R/R (second entry is error)
+                optical_no_noise[m][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
+                gauss_noise[m][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
+                optical_noise[m][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
+                wfirst_no_noise[m][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
+                wfirst_noise[m][lam][e]=[([],[])  , ([],[]) , ([],[]) ]
+
 
 
 
@@ -177,13 +295,70 @@ else:
 
 
 
+#### TEMPORAL: histogram of dofferences at different offsets
+def plot_histogram (vec1, vec2, vec3, outfile='histogram.pdf'):
+    pp1=PdfPages (outfile)
+    vec1, vec2, vec3 = np.array(vec1), np.array(vec2), np.array(vec3)
+
+    print vec1
+    print vec2
+    print vec3
+
+    nbins= 50
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    n, bins, patches = ax.hist(vec1*10**5, nbins, normed=True, facecolor='blue', alpha=0.65, label='delta e1')
+    plt.xlabel('delta e1')
+    plt.ylabel('normalized histogram')
+    #plt.yscale('log',nonposy='clip')
+    plt.legend(loc='upper right')
+    pp1.savefig()
+    plt.cla()
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    n, bins, patches = ax.hist(vec2*10**4, nbins, normed=True, facecolor='red', alpha=0.65, label='delta e2')
+    plt.xlabel('delta e2')
+    plt.ylabel('normalized histogram')
+    #plt.yscale('log',nonposy='clip')
+    plt.legend(loc='upper right')
+    pp1.savefig()
+    plt.cla()
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    n, bins, patches = ax.hist(vec3*10**3, nbins, normed=True, facecolor='green', alpha=0.65, label='delta R/R')
+    plt.xlabel('delta R/R')
+    plt.ylabel('normalized histogram')
+    #plt.yscale('log',nonposy='clip')
+    plt.legend(loc='upper right')
+    pp1.savefig()
+    pp1.close()
+
+
+pepe=45
 
 for mag in mag_gal_vec:
     for lam in wavelength_dict:
         lam_over_diam = wavelength_dict[lam] * 1.e-6 / tel_diam * galsim.radians
         lam_over_diam = lam_over_diam / galsim.arcsec
+        print "lam_over_diam", lam_over_diam
         for e in e_vec:
                 for beta in beta_vec:
+
+                    if dispersion and x_var == 'beta':
+                        beta_sigma = beta
+                        beta = beta0
+                    if dispersion and x_var == 'mag_and_beta':
+                        beta_sigma = beta
+                        beta = beta0
+                    
+                    #all_params = (beta, 0., 0.)
+                    #all_params = (0., beta, 0.)
+                    #all_params = (0., 0., beta)
+
+
+
                     logger.info("PARAMETERS: ")
                     logger.info("lambda: %s microns",  wavelength_dict[lam])
                     logger.info("ellipticity 1: %g", e[0])
@@ -193,10 +368,13 @@ for mag in mag_gal_vec:
                     #logger.info("beta: %g", beta)
                     print "beta: ", beta
                     print " "
+                    if dispersion:
+                        print "Dispersion: (%g, %g)" %(beta, beta_sigma)
+                    
                     #### Gaussian
                     ## no noise
                     #logger.info("First loop: gaussian, no noise")
-                    gal_flux=flux_dict[lam]*2.512**(m_zero-mag)
+                    gal_flux=flux_dict[lam]*10**(0.4*(m_zero-mag))
 
                     if profile_type == 'gaussian':
                         gal= galsim.Convolve (galsim.Gaussian(flux=gal_flux, sigma=gal_sigma).shear(galsim.Shear(e1=e[0],e2=e[1])) , galsim.Pixel(pixel_scale), gsparams=big_fft_params )
@@ -220,14 +398,25 @@ for mag in mag_gal_vec:
                         size_inter_vec_err=optical_no_noise[lam][mag][e][2][1]
                     
                     elif profile_type == 'wfirst':
-                        gal=galsim.Convolve( wfirst.getPSF(SCAs=18,approximate_struts=False, wavelength=filters[lam])[18].shear(galsim.Shear(e1=e[0],e2=e[1])).withFlux(gal_flux), galsim.Pixel(pixel_scale), gsparams=big_fft_params)
-                        e1_inter_vec=wfirst_no_noise[mag][lam][e][0][0]
-                        e2_inter_vec=wfirst_no_noise[mag][lam][e][1][0]
-                        size_inter_vec=wfirst_no_noise[mag][lam][e][2][0]
+                        if x_var == 'magnitude':
+                        
+                            gal=galsim.Convolve( wfirst.getPSF(SCAs=18,approximate_struts=False, wavelength=filters[lam])[18].shear(galsim.Shear(e1=e[0],e2=e[1])).withFlux(gal_flux), galsim.Pixel(pixel_scale), gsparams=big_fft_params)
+                            e1_inter_vec=wfirst_no_noise[c][lam][e][0][0]
+                            e2_inter_vec=wfirst_no_noise[c][lam][e][1][0]
+                            size_inter_vec=wfirst_no_noise[c][lam][e][2][0]
                     
-                        e1_inter_vec_err=wfirst_no_noise[mag][lam][e][0][1]
-                        e2_inter_vec_err=wfirst_no_noise[mag][lam][e][1][1]
-                        size_inter_vec_err=wfirst_no_noise[mag][lam][e][2][1]
+                            e1_inter_vec_err=wfirst_no_noise[c][lam][e][0][1]
+                            e2_inter_vec_err=wfirst_no_noise[c][lam][e][1][1]
+                            size_inter_vec_err=wfirst_no_noise[c][lam][e][2][1]
+                        else:
+                            gal=galsim.Convolve( wfirst.getPSF(SCAs=18,approximate_struts=False, wavelength=filters[lam])[18].shear(galsim.Shear(e1=e[0],e2=e[1])).withFlux(gal_flux), galsim.Pixel(pixel_scale), gsparams=big_fft_params)
+                            e1_inter_vec=wfirst_no_noise[mag][lam][e][0][0]
+                            e2_inter_vec=wfirst_no_noise[mag][lam][e][1][0]
+                            size_inter_vec=wfirst_no_noise[mag][lam][e][2][0]
+                            
+                            e1_inter_vec_err=wfirst_no_noise[mag][lam][e][0][1]
+                            e2_inter_vec_err=wfirst_no_noise[mag][lam][e][1][1]
+                            size_inter_vec_err=wfirst_no_noise[mag][lam][e][2][1]
                     
                     
                         
@@ -238,10 +427,32 @@ for mag in mag_gal_vec:
 
                     # beta from Normal distribution?
                     if n_realizations > 1:
+                        """
+                        def helper_function (index):
+                            seed=index
+                            temp=np.random.RandomState(seed=seed).normal(beta, beta_sigma , base_size*base_size)
+                            beta_matrix=np.reshape(temp, (base_size, base_size))
+                            e1_out, e2_out, size_out=measurement_function (gal, type=type, beta=beta_matrix, base_size=base_size, n=n, pixel_scale=pixel_scale)
+                            return e1_out, e2_out, size_out
+
+                        processes=cpu_count()
+                        use=5
+                        print "I have ", processes, "cores here. Using: %g" %use
+                        pool = Pool(processes=6)
+
+                        print "starting: "
+                        results=pool.map (helper_function, range(n_realizations))
+                        temp_e1, temp_e2, temp_size=[],[],[]
+                        for line in results:
+                            temp_e1.append(line[0])
+                            temp_e2.append(line[1])
+                            temp_size.append(line[2])
+                        """
+
                         temp_e1, temp_e2, temp_size=[],[],[]
                         for seed in range(1, n_realizations+1):
                             print "REALIZATION number (also seed): ", seed
-                            temp=np.random.RandomState(seed=seed).normal(beta, 0.12*beta , base_size*base_size)
+                            temp=np.random.RandomState(seed=seed).normal(beta, beta_sigma , base_size*base_size)
                             beta_matrix=np.reshape(temp, (base_size, base_size))
                             if multi:
                                 ##multiprocessing
@@ -250,38 +461,88 @@ for mag in mag_gal_vec:
                                 e1_out, e2_out, size_out=(output[:, 0], output[:, 1], output[:, 2])
                             else:
                                 e1_out, e2_out, size_out=measurement_function (gal, type=type, beta=beta_matrix, base_size=base_size, n=n, pixel_scale=pixel_scale)
+                            
+                                ##Measurement with fixed beta, to take the difference
+                                #e1_out_fixed, e2_out_fixed, size_out_fixed=measurement_function (gal, type=type, beta=beta, base_size=base_size, n=n, pixel_scale=pixel_scale)
 
                             temp_e1.append(e1_out)
                             temp_e2.append(e2_out)
                             temp_size.append(size_out)
 
+                            #temp_e1.append(e1_out)
+                            #temp_e2.append(e2_out)
+                            #temp_size.append(size_out)
+                        
+
                         mean_e1, mean_e2, mean_size= np.mean(temp_e1), np.mean(temp_e2), np.mean(temp_size)
-                        sqrt_n=math.sqrt(n_realizations)
-                        error_e1, error_e2, error_size = np.std(temp_e1)/sqrt_n, np.std(temp_e2)/sqrt_n, np.std(temp_size)/sqrt_n
+                        
+                        error_e1, error_e2, error_size = np.std(temp_e1), np.std(temp_e2), np.std(temp_size)
                         print "mean_e1, mean_e2, mean_size: ", mean_e1, mean_e2, mean_size
+                            
+                        
 
 
                     else:
                         if multi:
                             ##multiprocessing
-                            worker_funct=partial (measurement_function, type=type, beta=beta, base_size=base_size, n=n, pixel_scale=pixel_scale )
+                            worker_funct=partial (measurement_function, type=type, beta=beta, base_size=base_size, n=n, pixel_scale=pixel_scale)
                             output=np.array(mymap(worker_funct, gal ))
                             e1_out, e2_out, size_out=(output[:, 0], output[:, 1], output[:, 2])
                         else:
-                            e1_out, e2_out, size_out= measurement_function (gal, type=type, beta=beta, base_size=base_size, n=n, pixel_scale=pixel_scale)
+                            ## Do loop here over spixel shifts. temporal. To average over beta, delete loop and no means. (This is for a single beta)
+                            temp_e1, temp_e2, temp_size=[],[],[]
+                            of=[]
+                            for ind in range(n_offsets):
+                                if ind == 0:
+                                    offset= (0.0,0.0)
+                                ud=galsim.UniformDeviate(ind)
+                                offset= (ud(), ud())
+                                offset_highres = (offset[0]*n % 1, offset[1]*n % 1)
+                                of.append(offset_highres)
+                                #print "offset_highres: ", offset_highres
+                                e1_out, e2_out, size_out= measurement_function (gal, type=type, beta=beta, base_size=base_size, n=n, pixel_scale=pixel_scale, offset=offset_highres)
+                                #print "INSIDE LOOP: ", e1_out, e2_out, size_out
 
-                        mean_e1, mean_e2, mean_size=e1_out, e2_out, size_out
-                        error_e1, error_e2, error_size=0.,0.,0.
+                                temp_e1.append(e1_out)  #temp
+                                temp_e2.append(e2_out)   #temp
+                                temp_size.append(size_out)  #temp
+
+                        #mean_e1, mean_e2, mean_size=e1_out, e2_out, size_out
+                        #error_e1, error_e2, error_size=0.,0.,0.
+                            #Temporal : plot histogram
+                            if pepe == 0:
+                                plot_histogram (temp_e1, temp_e2, temp_size, outfile='histogram_%s_%g_offsets_pepe.pdf' %(lam, n_offsets))
+                                pepe+=1
+                            #print "of: ", of
+                            mean_e1, mean_e2, mean_size= np.mean(temp_e1), np.mean(temp_e2), np.mean(temp_size)
+                            error_e1, error_e2, error_size = np.std(temp_e1), np.std(temp_e2), np.std(temp_size)
+                            #print "mean_e1, mean_e2, mean_size: ", mean_e1, mean_e2, mean_size
+                            #print "error_e1, error_e2, error_size: ", error_e1, error_e2, error_size
+                            #sys.exit(1)
+
+                    if not dispersion:
+
+                        e1_inter_vec.append(mean_e1)
+                        e1_inter_vec_err.append(error_e1)
+
+                        e2_inter_vec.append(mean_e2)
+                        e2_inter_vec_err.append(error_e2)
+
+                        size_inter_vec.append (mean_size)
+                        size_inter_vec_err.append(error_size)
+
+                    else:
+                        
+                        e1_inter_vec.append(error_e1)
+                        e1_inter_vec_err.append(0.)
+                        
+                        e2_inter_vec.append(error_e2)
+                        e2_inter_vec_err.append(0.)
+                        
+                        size_inter_vec.append (error_size)
+                        size_inter_vec_err.append(0.)
 
 
-                    e1_inter_vec.append(mean_e1)
-                    e1_inter_vec_err.append(error_e1)
-
-                    e2_inter_vec.append(mean_e2)
-                    e2_inter_vec_err.append(error_e2)
-
-                    size_inter_vec.append (mean_size)
-                    size_inter_vec_err.append(error_size)
 
 
                     #WFIRST
@@ -292,6 +553,8 @@ for mag in mag_gal_vec:
 
                     #sys.exit(1)
 
+
+#sys.exit(1)
 
 pp=PdfPages("test_bias_NL_vs_flux.pdf")
 print "Output PDF: test_bias_NL_vs_flux.pdf"
@@ -325,7 +588,7 @@ mpl.rc ('legend', numpoints=1, fontsize='11', shadow=False, frameon=False)
 
 ## Plot parameters
 plt.subplots_adjust(hspace=0.01, wspace=0.01)
-prop = fm.FontProperties(size=7)
+prop = fm.FontProperties(size=8)
 marker_size=7.0
 alpha=0.7
 loc_label = "upper right"
@@ -395,6 +658,14 @@ def add_subplot_axes(ax,rect,axisbg='w'):
 
 
 def plot_function_e_and_r (fig, x_vec, y1_vec, y2_vec, y3_vec, y1_vec_err=None, y2_vec_err=None, y3_vec_err=None, x1label='', x2label='', y1label=r"$\Delta$e", y2label=r"$\Delta$R/R", lam_key='H158', e_key=(0.0, 0.0), position=111, title=''):
+    
+    if y1_vec_err == None: y1_vec_err=0.
+    if y2_vec_err == None: y2_vec_err=0.
+    if y3_vec_err == None: y3_vec_err=0.
+    x_vec, y1_vec, y2_vec, y3_vec, y1_vec_err, y2_vec_err, y3_vec_err = np.array(x_vec), np.array(y1_vec), np.array(y2_vec), np.array(y3_vec), np.array(y1_vec_err), np.array(y2_vec_err), np.array(y3_vec_err)
+    x_vec, y1_vec, y2_vec, y3_vec = np.array(x_vec), np.array(y1_vec), np.array(y2_vec), np.array(y3_vec)
+    y1_vec_err, y2_vec_err, y3_vec_err=np.array(y1_vec_err),np.array(y2_vec_err), np.array(y3_vec_err)
+
 
     if len(x2label) == 0:
         x2label=x1label
@@ -413,6 +684,30 @@ def plot_function_e_and_r (fig, x_vec, y1_vec, y2_vec, y3_vec, y1_vec_err=None, 
     else:
         print "wrong label type."
         sys.exit(1)
+
+
+
+
+    if x_var == 'beta':
+        #x1label=r"$\gamma$ ($\times 10^{10}$)"
+        x1label=r"$\beta$ ($\times 10^6$)"
+        #x1label=r"$\delta$"
+        #x1label=r"$\delta$ ($\times 10^{15}$)"
+        x_vec=np.array(x_vec)*(10**6)
+
+        if dispersion:
+            x1label=r"$\sigma_{\beta0}$ ($\times 10^6$)"
+            x_vec=np.array(x_vec)*(10**6)
+
+    elif x_var == 'mag_and_beta':
+        x1label=r"mag"
+        #if dispersion:
+            #x1label=r"$\beta$ ($\times 10^6$)"
+            #x_vec=np.array(x_vec)*(10**6)
+    elif x_var == 'magnitude':
+        x1label=r"mag"
+    else:
+        x1_label='x'
     
     ax = fig.add_subplot (223)
     ax.errorbar( x_vec, y1_vec, yerr=y1_vec_err, ecolor = color_fmt[0], label=label_e1, fmt=color_fmt, markersize=marker_size, alpha=alpha)
@@ -422,17 +717,44 @@ def plot_function_e_and_r (fig, x_vec, y1_vec, y2_vec, y3_vec, y1_vec_err=None, 
         plt.axhline(y=1e-5, color='r',ls='-', label='1e-5') # requirement
     #plt.axhspan(-m_req, m_req, facecolor='0.5', alpha=0.3)
     ax.set_xticklabels([int(x) for x in ax.get_xticks()], visible=visible_x)
-    x1label=r"mag"
-    #x1label=r"$\beta$"
+
+
     lx=ax.set_xlabel(x1label, visible=visible_x)
     #lx.set_fontsize(font_size)
     ax.set_xscale('linear')
     ax.set_yticklabels(ax.get_yticks(), visible= visible_y)
-    y1label=r"$\Delta$e$_1/\beta$"
+
+    if x_var == 'beta':
+        y1label=r"$\Delta$e$_1$ ($\times 10^4$)"
+        #y1label=r"$d_{\Delta e_1} (\times 10^4)$" # For diferences multi vs fixed beta
+        if dispersion:
+            y1label=r"$\sigma_{\Delta e_1}$"
+
+    elif x_var == 'mag_and_beta':
+        y1label=r"$\Delta$e$_1/\beta$"
+        if dispersion:
+            y1label=r"$\sigma_{\Delta e_1}$ / $\sigma_{\beta}$ "
+            #y2_vec=y2_vec*10**-4
+        #y1label=r"$\Delta$e$_1/\gamma$"
+        #y1label=r"$\Delta$e$_1/\delta$"
+
+
+
+    elif x_var == 'magnitude':
+        y1label=r"$\Delta$e$_1$"
+    else:
+        y1_label='y'
+
+    #y1label=r"$\Delta$e$_1/\beta$"
     #y1label=r"$\Delta$e$_1$"
+    #y1label= y1label + " (Difference fixed vs no fixed " + r"$\beta$)"
+
+
     ly=ax.set_ylabel(y1label, visible=visible_y)
     #ly.set_fontsize(font_size)
-    ax.set_yscale('linear')
+    ax.set_yscale('log')
+    #plt.ylim ([1e2, 1e6])
+
     #plt.ylim ([-1e-4, 8e4])
     #plt.ylim ([-0.15, 0.15])
     xmin, xmax=plt.xlim()
@@ -455,18 +777,68 @@ def plot_function_e_and_r (fig, x_vec, y1_vec, y2_vec, y3_vec, y1_vec_err=None, 
         plt.axhline(y=1e-5, color='r',ls='-', label='1e-5') # requirement
     #plt.axhspan(-m_req, m_req, facecolor='0.5', alpha=0.3)
     ax.set_xticklabels([int(x) for x in ax.get_xticks()], visible=visible_x)
-    x1label=r"mag"
+
+    if x_var == 'beta':
+        x1label=r"$\beta$ ($\times 10^6$)"
+        #x1label=r"$\gamma$ ($\times 10^{10}$)"
+        #x1label=r"$\beta$"
+        #x1label=r"$\delta$ ($\times 10^15$)"
+        #x1label=r"$\delta$ ($\times 10^{15}$)"
+        if dispersion:
+            x1label=r"$\sigma_{\beta0}$ ($\times 10^6$)"
+            x_vec=np.array(x_vec)*(10**0)
+
+    elif x_var == 'mag_and_beta':
+        x1label=r"mag"
+        #if dispersion:
+            #x1label=r"$\beta$ ($\times 10^6$)"
+    elif x_var == 'magnitude':
+        x1label=r"mag"
+    else:
+        x1_label='x'
+
+    #x1label=r"mag"
     #x1label=r"$\beta$"
+
     lx=ax.set_xlabel(x1label, visible=visible_x)
     #lx.set_fontsize(font_size)
     ax.set_xscale('linear')
     ax.set_yticklabels(ax.get_yticks(), visible= visible_y)
-    y1label=r"$\Delta$e$_2/\beta$"
+
+
+    if x_var == 'beta':
+        y1label=r"$\Delta$e$_2$" #($\times 10^3$)"
+        #y1label=r"$d_{\Delta e_2} (\times 10^4)$" # For diferences multi vs fixed beta
+        if dispersion:
+            y1label=r"$\sigma_{\Delta e_2}$"
+
+    elif x_var == 'mag_and_beta':
+        y1label=r"$\Delta$e$_2/\beta$"
+
+        if dispersion:
+            y1label=r"$\sigma_{\Delta e_2}$ / $\sigma_{\beta}$"
+
+        #y1label=r"$\Delta$e$_2/\gamma$"
+        #y1label=r"$\Delta$e$_2/\delta$"
+
+
+    elif x_var == 'magnitude':
+        y1label=r"$\Delta$e$_2$"
+
+    else:
+        y1_label='y'
+
+
+    #y1label=r"$\Delta$e$_2/\beta$"
     #y1label=r"$\Delta$e$_2$"
+    #y1label= y1label + " (Difference fixed vs no fixed " + r"$\beta$)"
+
     ly=ax.set_ylabel(y1label, visible=visible_y)
     #ly.set_fontsize(font_size)
-    ax.set_yscale('linear')
-    plt.ylim ([-20, 2600])
+    ax.set_yscale('log')
+    #plt.ylim ([1e2, 1e6])
+
+    #plt.ylim ([-20, 2600])
     #plt.ylim ([-0.15, 0.15])
     xmin, xmax=plt.xlim()
     delta=(xmax-xmin)
@@ -489,16 +861,53 @@ def plot_function_e_and_r (fig, x_vec, y1_vec, y2_vec, y3_vec, y1_vec_err=None, 
     #ax.errorbar(x_vec, ratio_vec_fixed_flux , yerr=None, ecolor = 'k', label='', fmt='k-', markersize=marker_size, alpha=1.)
     #plt.axhspan(-m_req, m_req, facecolor='0.5', alpha=0.3)
     ax.set_xticklabels([int(x) for x in ax.get_xticks()], visible=visible_x)
-    x2label=r"mag"
+
+    if x_var == 'beta':
+        x2label=r"$\beta$ ($\times 10^6$)"
+        #x2label=r"$\gamma$ ($\times 10^{10}$)"
+        #x2label=r"$\delta$ ($\times 10^15$)"
+        #x2label=r"$\delta$ ($\times 10^{15}$)"
+        ax.set_yscale('linear')
+        #y2label=r"$d_{\Delta R/R} (\times 10^4)$"  # For diferences multi vs fixed beta
+        if dispersion:
+            x2label=r"$\sigma_{\beta0}$ ($\times 10^6$)"
+            x_vec=np.array(x_vec)*(10**0)
+            y2label=r"$\sigma_{\Delta R/R}$"
+
+
+    elif x_var == 'mag_and_beta':
+        x2label=r"mag"
+        ax.set_yscale('log')
+        plt.ylim ([1e2, 1e5])
+        y2label=r"$\Delta R/R/\beta$"
+        if dispersion:
+            #x2label=r"$\beta$ ($\times 10^6$)"
+            y2label=r"$\sigma_{\Delta R/R}$ / $\sigma_{\beta}$ "
+    elif x_var == 'magnitude':
+        x2label=r"mag"
+        ax.set_yscale('linear')
+        #plt.ylim ([50, 3e4])
+        y2label="$\Delta R/R$"
+
+    else:
+        x2_label='x'
+
+    #x2label=r"mag"
+
     #x2label=r"$\beta$"
     lx=ax.set_xlabel(x2label, visible=visible_x)
     #lx.set_fontsize(font_size)
     ax.set_xscale('linear')
     ax.set_yticklabels(ax.get_yticks(), visible= visible_y)
+
+    #y2label = y2label + " (Difference fixed vs no fixed " + r"$\beta$)"
+
     ly=ax.set_ylabel(y2label, visible=visible_y)
     #ly.set_fontsize(font_size)
-    ax.set_yscale('log')
-    plt.ylim ([50, 3e4])
+    #ax.set_yscale('linear')
+    #ax.set_yscale('log')
+    #plt.ylim ([50, 3e4])
+
     #plt.ylim([0., 0.35])
     #plt.ylim ([ymin, ymax])
     xmin, xmax=plt.xlim()
@@ -541,7 +950,7 @@ plot_positions_six={'Z087':321,'Y106':322, 'J129':323, 'W149':324, 'H158':325, '
 if x_var == 'magnitude' or  x_var== 'mag_and_ellipticity':
 
     x_vec=mag_gal_vec
-    x_label=r"mag_object"
+    x_label=r"mag"
 
 
     if type == 'bf':
@@ -626,24 +1035,33 @@ else:
 
 ### For the normalized profiles (e.g., \deltaR / \beta vs mag)
 def get_slope (x, y):
-    fitfunc = lambda p, x: p[0]*x
+    fitfunc = lambda p, x: p[0]*x + p[1]
     errfunc = lambda p, x, y: fitfunc(p, x) - y
-    p0 = [1.]
+    p0 = [1., 1.]
+    print "Fitting x, y: ", x, y
     p1, success = optimize.leastsq(errfunc, p0[:], args=(x,y))
-    print 'pendiente:', p1[0]
+    print 'pendiente and intercept, and success:', p1[0] , p1[1], success
     return p1[0]
 
+def get_slope2 (x, y):
+    p=np.polyfit(x,y,1)
+    print 'pendiente and intercept from np.polyfit', p[0] , p[1]
+    return p[0], p[1]
 
 if x_var == 'mag_and_beta':
     beta_vec=np.array(beta_vec)
     slope_dict={}
+    #gamma_temp={}
+    
     for lam in wavelength_dict:
         slope_dict[lam] =[[],[],[]]  # e1, e2, size
-
+        #gama_temp[lam] =[[],[],[]]
+    
     fig = plt.figure()
     for e in e_vec:
         for m_gal in mag_gal_vec:
             for lam in wavelength_dict:
+                print "mgal: %g, lam: %s" %(m_gal,lam)
                 if profile_type == 'gaussian':
                     e1_inter_vec=gauss_no_noise[m_gal][lam][e][0][0]
                     e2_inter_vec=gauss_no_noise[m_gal][lam][e][1][0]
@@ -661,20 +1079,38 @@ if x_var == 'mag_and_beta':
                     sys.exit(1)
 
             
-                slope_e1= get_slope ( np.array(beta_means), e1_inter_vec)  #delta_e1
+                slope_e1= get_slope2 ( np.array(beta_means), e1_inter_vec)[0]  #delta_e1
                 slope_dict[lam][0].append(slope_e1)
-                
-                slope_e2= get_slope ( np.array(beta_means), e2_inter_vec)  #delta_e2
+               
+                slope_e2= get_slope2 ( np.array(beta_means), e2_inter_vec)[0]  #delta_e2
                 slope_dict[lam][1].append(slope_e2)
             
-                slope_r= get_slope (np.array(beta_means), size_inter_vec)    #delta_r
+                slope_r= get_slope2 (np.array(beta_means), size_inter_vec)[0]    #delta_r
                 slope_dict[lam][2].append(slope_r)
+
+                if slope_e1 == 1. or slope_e2 == 1. or slope_r == 1.:
+                    print "Fit to line about point failed."
+                    sys.exit(1)
+
 
 
     for lam in wavelength_dict:
         temp=[]
         print "lam", lam
-        plot_function_e_and_r (fig, mag_gal_vec, slope_dict[lam][0] , slope_dict[lam][1], slope_dict[lam][2], x1label=x_label, y1label=r"$\Delta e$/$\beta$", y2label=r"$\Delta R/R/\beta$", lam_key=lam)
+        print "slope_dict[lam][0] , slope_dict[lam][1], slope_dict[lam][2]: ", slope_dict[lam][0] , slope_dict[lam][1], slope_dict[lam][2]
+        plot_function_e_and_r (fig, mag_gal_vec, slope_dict[lam][0] , slope_dict[lam][1], slope_dict[lam][2], x1label=x_label, y1label=r"$\Delta e$/$\gamma$", y2label=r"$\Delta R/R/\gamma$", lam_key=lam)
+
+
+        ###### Fitting a power law (or a line in log space) log y = log A + B (m - m0)
+        B, logA = get_slope2 (np.log10(np.array( slope_dict[lam][2]) ) ,  np.array(mag_gal_vec) - 20  )
+        print "lambda: %s, B: %g, logA: %g, A:% g" % (lam, B, logA, 10**(logA))
+
+
+        #print "mag_gal_vec, e1_inter_vec, e2_inter_vec, size_inter_vec", mag_gal_vec, e1_inter_vec , e2_inter_vec, size_inter_vec
+        #print "HOLA "
+        
+        #plot_function_e_and_r (fig, mag_gal_vec, e1_inter_vec , e2_inter_vec, size_inter_vec, x1label=x_label, y1label=r"$\Delta e$", y2label=r"$\gamma$", lam_key=lam)
+
     #plt.suptitle(string, fontsize=13)
     fig.tight_layout()
     plt.subplots_adjust(top=0.85)
@@ -802,40 +1238,40 @@ elif x_var == 'beta':
     for e in e_vec:
         fig = plt.figure()
         for m in mag_gal_vec:
-            if m == 18:
-                position=221
-                x_label=''
-            elif m == 20:
-                position=222
-                x_label=''
-            elif m == 22:
-                position=223
-            elif m == 24:
-                position=224
-            else:
-                "Non-existent magnitude"
-                sys.exit(1)
+            #if m == 18:
+            #    position=221
+            #    x_label=''
+            #elif m == 20:
+            #    position=222
+            #    x_label=''
+            #elif m == 22:
+            #    position=223
+            #elif m == 24:
+            #    position=224
+            #else:
+            #    print "Non-existent magnitude"
+            #    sys.exit(1)
             for lam in wavelength_dict:
                 e1_inter_vec, e2_inter_vec, size_inter_vec= [],[], []
                 e1_inter_vec_err, e2_inter_vec_err, size_inter_vec_err= [],[], []
                 
                 
                 if profile_type == 'gaussian':
-                    e1_inter_vec.append(gauss_no_noise[lam][m][e][0][0])
-                    e2_inter_vec.append(gauss_no_noise[lam][m][e][1][0])
-                    size_inter_vec.append(gauss_no_noise[lam][m][e][2][0])
+                    e1_inter_vec.append(gauss_no_noise[m][lam][e][0][0])
+                    e2_inter_vec.append(gauss_no_noise[m][lam][e][1][0])
+                    size_inter_vec.append(gauss_no_noise[m][lam][e][2][0])
                 
-                    e1_inter_vec_err.append(gauss_no_noise[lam][m][e][0][1])
-                    e2_inter_vec_err.append(gauss_no_noise[lam][m][e][1][1])
-                    size_inter_vec_err.append(gauss_no_noise[lam][m][e][2][1])
+                    e1_inter_vec_err.append(gauss_no_noise[m][lam][e][0][1])
+                    e2_inter_vec_err.append(gauss_no_noise[m][lam][e][1][1])
+                    size_inter_vec_err.append(gauss_no_noise[m][lam][e][2][1])
                 elif profile_type == 'optical':
-                    e1_inter_vec.append(optical_no_noise[lam][m][e][0][0])
-                    e2_inter_vec.append(optical_no_noise[lam][m][e][1][0])
-                    size_inter_vec.append(optical_no_noise[lam][m][e][2][0])
+                    e1_inter_vec.append(optical_no_noise[m][lam][e][0][0])
+                    e2_inter_vec.append(optical_no_noise[m][lam][e][1][0])
+                    size_inter_vec.append(optical_no_noise[m][lam][e][2][0])
                 
-                    e1_inter_vec_err.append(optical_no_noise[lam][m][e][0][1])
-                    e2_inter_vec_err.append(optical_no_noise[lam][m][e][1][1])
-                    size_inter_vec_err.append(optical_no_noise[lam][m][e][2][1])
+                    e1_inter_vec_err.append(optical_no_noise[m][lam][e][0][1])
+                    e2_inter_vec_err.append(optical_no_noise[m][lam][e][1][1])
+                    size_inter_vec_err.append(optical_no_noise[m][lam][e][2][1])
                 elif profile_type == 'wfirst':
                     e1_inter_vec.append(wfirst_no_noise[m][lam][e][0][0])
                     e2_inter_vec.append(wfirst_no_noise[m][lam][e][1][0])
@@ -849,9 +1285,11 @@ elif x_var == 'beta':
                     
                     print "Wrong 'profile_type'. "
                     sys.exit(1)
-                print "x_vec, e1_inter_vec, e2_inter_vec, size_inter_vec", x_vec, e1_inter_vec, e2_inter_vec, size_inter_vec
+                print "x_vec, e1_inter_vec, e2_inter_vec, size_inter_vec", x_vec, e1_inter_vec[0], e2_inter_vec[0], size_inter_vec[0]
+                print "e1_inter_vec_err[0], e2_inter_vec_err[0], size_inter_vec_err[0] * sqrt (n) ", sqrt_n* np.array(e1_inter_vec_err[0]), sqrt_n*np.array(e2_inter_vec_err[0]), sqrt_n*np.array(size_inter_vec_err[0])
+                print "e1_inter_vec_err[0], e2_inter_vec_err[0], size_inter_vec_err[0]", e1_inter_vec_err[0], e2_inter_vec_err[0], size_inter_vec_err[0]
                 print "PLOTTING: ", lam, m, e
-                plot_function_e_and_r (fig, x_vec, e1_inter_vec[0], e2_inter_vec[0], size_inter_vec[0], y1_vec_err=e1_inter_vec_err[0], y2_vec_err=e2_inter_vec_err[0], y3_vec_err=size_inter_vec_err[0], x1label=x_label, lam_key=lam, e_key=e, position=position, title="mag: %g" %m)
+                plot_function_e_and_r (fig, x_vec, e1_inter_vec[0], e2_inter_vec[0], size_inter_vec[0], y1_vec_err=e1_inter_vec_err[0], y2_vec_err=e2_inter_vec_err[0], y3_vec_err=size_inter_vec_err[0], x1label=x_label, lam_key=lam, e_key=e, title="mag: %g" %m)
 
         #plt.suptitle(string + "actual m:%g " %m, fontsize=11)
         #plt.suptitle( "m:%g " %m, fontsize=10)
@@ -860,6 +1298,64 @@ elif x_var == 'beta':
         pp.savefig(fig)
 
     plt.close()
+
+
+elif x_var == 'magnitude':
+    x_vec=mag_gal_vec
+    
+    for e in e_vec:
+        fig = plt.figure()
+        for c in beta_means:
+        
+            for lam in wavelength_dict:
+                e1_inter_vec, e2_inter_vec, size_inter_vec= [],[], []
+                e1_inter_vec_err, e2_inter_vec_err, size_inter_vec_err= [],[], []
+                
+                
+                if profile_type == 'gaussian':
+                    e1_inter_vec.append(gauss_no_noise[c][lam][e][0][0])
+                    e2_inter_vec.append(gauss_no_noise[c][lam][e][1][0])
+                    size_inter_vec.append(gauss_no_noise[c][lam][e][2][0])
+                    
+                    e1_inter_vec_err.append(gauss_no_noise[c][lam][e][0][1])
+                    e2_inter_vec_err.append(gauss_no_noise[c][lam][e][1][1])
+                    size_inter_vec_err.append(gauss_no_noise[c][lam][e][2][1])
+                elif profile_type == 'optical':
+                    e1_inter_vec.append(optical_no_noise[c][lam][e][0][0])
+                    e2_inter_vec.append(optical_no_noise[c][lam][e][1][0])
+                    size_inter_vec.append(optical_no_noise[c][lam][e][2][0])
+                    
+                    e1_inter_vec_err.append(optical_no_noise[c][lam][e][0][1])
+                    e2_inter_vec_err.append(optical_no_noise[c][lam][e][1][1])
+                    size_inter_vec_err.append(optical_no_noise[c][lam][e][2][1])
+                elif profile_type == 'wfirst':
+                    e1_inter_vec.append(wfirst_no_noise[c][lam][e][0][0])
+                    e2_inter_vec.append(wfirst_no_noise[c][lam][e][1][0])
+                    size_inter_vec.append(wfirst_no_noise[c][lam][e][2][0])
+                    
+                    e1_inter_vec_err.append(wfirst_no_noise[c][lam][e][0][1])
+                    e2_inter_vec_err.append(wfirst_no_noise[c][lam][e][1][1])
+                    size_inter_vec_err.append(wfirst_no_noise[c][lam][e][2][1])
+
+                else:
+        
+                    print "Wrong 'profile_type'. "
+                    sys.exit(1)
+                print "x_vec, e1_inter_vec, e2_inter_vec, size_inter_vec", x_vec, e1_inter_vec[0], e2_inter_vec[0], size_inter_vec[0]
+                print "e1_inter_vec_err[0], e2_inter_vec_err[0], size_inter_vec_err[0] * sqrt (n) ", sqrt_n* np.array(e1_inter_vec_err[0]), sqrt_n*np.array(e2_inter_vec_err[0]), sqrt_n*np.array(size_inter_vec_err[0])
+                print "e1_inter_vec_err[0], e2_inter_vec_err[0], size_inter_vec_err[0]", e1_inter_vec_err[0], e2_inter_vec_err[0], size_inter_vec_err[0]
+                print "PLOTTING: ", lam, c, e
+                plot_function_e_and_r (fig, x_vec, e1_inter_vec[0], e2_inter_vec[0], size_inter_vec[0], y1_vec_err=e1_inter_vec_err[0], y2_vec_err=e2_inter_vec_err[0], y3_vec_err=size_inter_vec_err[0], x1label=x_label, lam_key=lam, e_key=e, title=" ")
+
+        #plt.suptitle(string + "actual m:%g " %m, fontsize=11)
+        #plt.suptitle( "m:%g " %m, fontsize=10)
+        fig.tight_layout()
+        plt.subplots_adjust(top=0.85)
+        pp.savefig(fig)
+    
+    plt.close()
+
+
 
 else:
     print "need to implement x_var: ", x_var
