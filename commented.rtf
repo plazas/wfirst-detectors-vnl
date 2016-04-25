@@ -1,0 +1,123 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf110
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 NOTES: \
+\
+\
+%\\textcolor\{black\}\{In this section we explain voltage non-linearity, and how it can affect WL science through PSF broadening. Cite the appropriate references from the literature (i.e., previous studies of NL for these type of detectors). Roger's document on measurements and emails have many good explanations, and should be cited/paraphrased.\}\
+\
+%% There is an obvious potential for non-linearity between photon ?ux and output voltage in the photovoltaic detectors which is absent in CCDs, simply because the detector capacitance is not \'aexed, but does in fact depend on the width of the pn depletion region, which in turn depends on the value of the reverse bias voltage. (Variations in the size of the depletion region do occur in a CCD, but this is a small e??ect.) The bias voltage changes continuously as the cell integrates, irrespective of whether it is storing photogenerated charges or dark current charges.\
+\
+%In general, how- ever, IR arrays are continuously exposed to light, and therefore the exposure time is controlled by the sequence of reset and read pulses.\
+\
+% Sample Up The Ramp: \
+%In this approach, the signal is sampled many times at regular intervals throughout the duration of the exposure, rather than multiple times at the beginning and at the end. Therefore, the signal can be seen to ``ramp'' up (Chapman et al., 1990; Garnett and Forrest, 1993)\
+\
+%Each pixel of an HxRG array is a 3-T (three transistor) design with a source fol- lower MOSFET providing charge-to-voltage conversion.  The gate of the source fol- lower is connected to the detector pixel with an indium bump\
+\
+%IPCInter-pixel capacitance (IPC): For CMOS arrays made with source follower (SF) pixels, the gate of the SF of one pixel is capacitively coupled to some degree to the SF in each of the 4 neighboring pixels. Since the voltage on a SF gate changes as photocharge is accumulated, this voltage change will modify the voltage on neighboring pixels, causing an electrical crosstalk between pixels. This crosstalk occurs after charge collection and during the charge-to-voltage conversion pro- cess. This ?inter-pixel capacitance? (IPC) can be conducted via three paths: (1) through the ROIC, (2) through the indium bumps, or (3) through the detector ma- terial. Since a silicon PIN detector is fully depleted, capacitive coupling through the detector material is dominant. For a H2RG, the IPC for a silicon HyViSI H2RG array is 8-10% to nearest neighbor.\
+\
+%Non-linearity: A source follower is inherently non-linear, since the gate of the amplifier de-biases during charge integration. This leads to a roll-off of response as the detector approaches full well. Pixel full well is typically defined as the charge level at which the response is 5% deviation from linear, which is typically about 100,000 electrons for the HxRG designs (the exact number depends on the operating conditions)\
+\
+%The presence of the signal amplifier in each pixel causes a signal coupling among neighboring pixels (\\emph\{i.e.\}, the charge in a pixel induces a voltage change in a neighbor) that is known as Inter-Pixel Capacitance (IPC). IPC is a type of crosstalk analogous to the amplifier crosstalk seen in multichannel CCDs (REFERENCE to O'Connor et al), and can have undesirable effects on PSF correction for WL science (REF ARUN et al). In addition to IPC, NIR detectors present other type of sensor effects that must be calibrated and/or corrected for accurate WL measurements. In particular,  \
+\
+\
+\
+\
+%\\textcolor\{blue\}\{Following \\citealt\{hilbert04\}, \\citealt\{hilbert08\}, and \\cite\{hilbert14\} (which study non-linearity in the Hubble Space Telescope's Wide Field Camera (WFC3) NIR detector\\textemdash a H1RG 1.7 $\\mu$m cutoff detector, similar to the H4Rg that will be used in WFIRST), we model the measured voltage $S$ corresponding to the number of electron-hole pairs $Q$ as a fourth-order polynomial of the form:\}\
+%To obtain a functional model of NL as a function of signal, we use laboratory measurements\\footnote\{Performed at Caltech by R. Smith and collaborators.\} of H2RG 1.7 $\\mu$m cutoff detectors, which have the same basic design of the H4RG that will be used in the WFI but with 18 $\\mu$m pixels. A constant flux source is illuminated on the detector, and the NL measurements are done by non-destructive sample-up-the-ramp (SUTR) readout at multiple times. The value of the first frame is subtracted, and then the \\emph\{mean\} signal is fitted to a polynomial. These measurements show that the voltage relation for a measured signal $S$ is well fit by a quadratic function in the signal $Q$ of the form:\
+%\\begin\{align\}\
+%S(Q)= Q + \\beta Q ^2  (\\mathrm\{e^-\}) \
+\
+\
+%\\textcolor\{blue\}\{Following \\citealt\{hilbert04\}, \\citealt\{hilbert08\}, and \\cite\{hilbert14\} (which study non-linearity in the Hubble Space Telescope's Wide Field Camera (WFC3) NIR detector\\textemdash a H1RG 1.7 $\\mu$m cutoff detector, similar to the H4Rg that will be used in WFIRST), we model the measured voltage $S$ corresponding to the number of electron-hole pairs $Q$ as a fourth-order polynomial of the form:\}\
+%To obtain a functional model of NL as a function of signal, we use laboratory measurements\\footnote\{Performed at Caltech by R. Smith and collaborators.\} of H2RG 1.7 $\\mu$m cutoff detectors, which have the same basic design of the H4RG that will be used in the WFI but with 18 $\\mu$m pixels. A constant flux source is illuminated on the detector, and the NL measurements are done by non-destructive sample-up-the-ramp (SUTR) readout at multiple times. The value of the first frame is subtracted, and then the \\emph\{mean\} signal is fitted to a polynomial. These measurements show that the voltage relation for a measured signal $S$ is well fit by a quadratic function in the mean signal $\\langle Q \\rangle$ of the form:\
+%\\begin\{align\}\
+%\\hat\{p\} = \\frac\{\\frac\{\\partial I\}\{\\partial p\} C^\{-1\} (I - I_\{p=0\})\} \{\\frac\{\\partial I\}\{\\partial p\} C^\{-1\} \\frac\{\\partial I\}\{\\partial p\}\} \\\\\
+%\\end\{align\}\
+%To determine the scale of spatial variation in NL among the individual pixels, high S/N co-added flats were taken at different exposure times and constant flux, and their ratios taken (after subtraction of a mean dark flat for each frame). The sequence of means of the ratio images followed the quadratic function of Eq. \\ref\{NL\}, with a standard variation that includes shot noise and deviations of the individual NL curves from the mean NL. After subtracting in quadrature the contribution from shot noise, a remaining floor in the variation of about $12\\%$ r.m.s. can be attributed to the variation of the NL coefficient $\\beta$.  \
+%\\textcolor\{blue\}\{For the pixels in the WFC3 NIR detector, \\citealt\{hilbert14\} calculate that $\\beta \\in [-0.5,1.5]\\times10^\{-6\}$, $\\gamma \\in [-1,0.5]\\times10^\{-10\}$, and $\\delta \\in [-1,2]\\times10^\{-15\}$. Therefore, in our calculations we use the midpoints these intervals as nominal values for each parameter, \\emph\{i.e.\} $(\\beta_0$, $\\gamma_0$, $\\delta_0$) = ($0.5\\times10^\{-6\}$, $-0.25\\times10^\{-10\}$, $1.5\\times10^\{-15\}$). In addition, we will assume that the coefficients in each pixel can be drawn from a Gaussian distribution with means $(\\beta_0$, $\\gamma_0$, $\\delta_0$) and ($\\sigma_\{\\beta\}$, $\\sigma_\{\\gamma\}$, $\\sigma_\{\\delta\}$) = ($5.9\\times10^\{-7\}$, $5.625\\times10^\{-11\}$, $1.35\\times10^\{-15\}$)  (dispersion values taken as the mean of the standard deviations calculated in four cuadrants of the WFC3 H1RG detector by \\citealt\{hilbert08\})\}\
+\
+%Thus, in our calculations we assume that each individual pixel satisfies a NL function of the same form as Eq. \\ref\{NL\}. In addition, when we study the impact of spatial variation of the model coefficient along the pixel array we will assume that the parameter $\\beta$ in each pixel can be drawn from a Normal distribution of the form $\\mathcal\{N\} \\sim (\\beta_0,\\ \\sigma_\{\\beta_0\})$, where the nominal mean value $\\beta_0$ is measured to be $-3.566\\times10^\{-7\}$/e$^\{-\}$. \
+\
+%This mean nominal value implies an attenuation of the signal of about $4\\%$ for \
+\
+%which represents a total flux (over all pixels of the postage stamp where each profile was drawn) of up to $\\sim 2.82 \\times 10^5 \\ \\mathrm\{e^-\}$ (J129 band, see Table 1), with a resulting in a signal attenuation of about $3.4\\%$.  \
+\
+% (Be aware that many of the NIR filter sets in Trilegal are on the Vega system and have to be converted to AB.) I did a run at the South Galactic Pole with the SDSS + 2MASS (ugriz + JHKs) filters in 1 deg^2 and interpolated to WFIRST filter centers. [This isn't really a great procedure since the stars have spectral structure in the NIR, but at the "tens of percents" level -- which I think is what you're asking for -- this should be fine.] In 1 deg^2, I get 964 saturated stars in J, 943 in H, and 667 in F184. This corresponds to 15.0, 14.7, and 10.4 saturated stars per detector. At moderate Galactic latitude, these numbers will be higher. Also each detector will have a software-defined guide window that will be placed on one of the stars that would saturate in the full-length exposure.\}  \}  \
+\
+\
+%We have verified that the results using the mean NL coefficient for all pixels do not differ significatively from those using the distribution above for each pixel (see Section and Table 2 below). \
+% DC offsets which are intrinsic to the readout circuit and which vary from pixel to pixel\
+\
+%However, these last two assumptions can be relaxed to expedite calculations, and the optional keyword \{\\tt\{approximate\\char`_struts\}\} can be set to \{\\tt\{True\}\}. \
+\
+%nonlinearity depends on the absolute pixel values, and therefore it will depend on where the star is centered within the pixels\
+\
+%I think that a better representative of what we?ll see in WFIRST would be to use something like 3x3 subsampling, closer to the Nyquist limit.  In that case, you?re not so close to infinite resolution that you can ignore the impact of centroid shifts within the native pixels.  You might find that some star centroid locations are worse than others, and you can see how wide is the range - are they all close to the average, or is there a tail?\
+\
+%OK, let's take a look.\
+\
+%Andr\'e9s, using the data you are currently generating, can you please make the relevant histogram?  That is:\
+%-choose centroid offset\
+%-render N=3 subsampled image\
+%-measure size (and ellipticity) difference between linear and nonlinear version\
+%-repeat for many offsets (uniformly spaced or uniform random over a native pixel) and plot e.g. the histogram of size differences\
+\
+ %I repeated the histograms of the delta metrics, explicitly casting the results from hsm to double precision (by means of 'float'; although I would think hsm already returns this kind of precision). I ran 100 realizations of centroid offsets (using the same seeds for NL vs no NL), with pixel scale=0.11 and n_sub=3. All this for a WFIRST PSF at lambda 1292 nm with flux 9.5477e4. I used the nominal beta0 value.\
+\
+%We calculated the difference between the values of $\\Delta e$ and $\\Delta R/R$ obtained when assuming that each pixel has a different NL coefficient drawn from the Normal distribution $\\mathcal\{N\} \\sim (\\beta, 0.12\\beta)$, and when assuming that each pixel has a fixed coefficient given by the mean value $\\beta$:\
+%\\begin\{align\}\
+%d_\{e_1\} = \\frac\{\\sum_\{j=1\}^\{M=100\} (\\Delta e_\{1,j\}^\{\\text\{dist\}\}  - \\Delta e_1^\{\\text\{fix\}\}) \} \{M\}\
+%\\label\{diference\}\
+%\\end\{align\}\
+%Analogous relations can be written for $\\Delta e_2$ and $\\Delta R/R$ as well (\\emph\{i.e.\}, $d_\{e_2\}$, and $d_\{\\Delta R/R\}$). Fig. \\ref\{f2\} shows the average value of these differences over $M=100$ realizations for the nominal $\\beta_0$ along with their standard deviations, for all the four bands. We found values consistent with zero, indicating that for these simulations the impact of the individual $\\beta$ variation is small, and therefore we will use a single mean $\\beta$ value for all pixels in what follows.\
+\
+\
+\
+%\\section*\{Appendix\}\
+\
+%The parameters used in the weak lensing mode of the Exposure Time Calculator (ETC-WL) to obtain the flux (in electrons) at AB magnitude 20 for each of the four bands simulated (J129, W149, H158, and F184) are as follows (see \\citealt\{spergel15\} and \\citealt\{hirata12\}): \
+%\\begin\{multicols\}\{2\}\
+%\\begin\{enumerate\}\
+%\\item[\\textemdash] telescope configuration: 0 (generic)\
+%\\item[\\textemdash] aperture outer diameter: 2.4 m\
+%\\item[\\textemdash] central obscuration: 0.3\
+%\\item[\\textemdash] pixel scale: 0.11 arcsec/pix\
+%\\item[\\textemdash] throughput: 0.8\
+%\\item[\\textemdash] RMS wavefront error: 0.05 $\\mu$m\
+%\\item[\\textemdash] detector type: 2 (H4RG)\
+%\\item[\\textemdash] pointing jitter: 0.00 arcsec per axis\
+%\\item[\\textemdash] minimum wavelength: \\emph\{filter dependent\} (see Table 1)\
+%\\item[\\textemdash] maximum wavelength: \\emph\{filter dependent\} (see Table 1)\
+%\\item[\\textemdash] filter throughput: 0.99  \
+%\\item[\\textemdash] single exposure time: 174 s\
+%\\item[\\textemdash] readnoise floor: 0.0 e$^\{-\}$/pix/s\
+%\\item[\\textemdash] dark current: 0.0 e$^\{-\}$/pix/s\
+%\\item[\\textemdash] (heliocentric) ecliptic latitude: -30 deg\
+%\\item[\\textemdash] galactic redening E(B-V): 0.03 mag\
+%\\item[\\textemdash] number of exposures: 9 ($N=3$) \
+%\\item[\\textemdash] minimum resolution factor R: 0.425\
+%\\item[\\textemdash] maximum ellipticity error: 0.2\
+%\\end\{enumerate\}\
+%\\end\{multicols\}\
+\
+\
+%?Nonlinearity? includes nonlinear conversion gain (e-/ADU) and the ?brighter-fatter effect?. Postdoc Andres Plazas-Malagon is calculating the effects of these on shape measurement with WFIRST.\
+%Weak lensing scientists typically assume that nonlinear conversion gain (NL) will be sufficiently calibrated.  This was based on\
+%Experience with CCDs, not CMOS\
+%Previous, less stringent shape measurement requirements\
+%Top plot shows the change in PSF size DR/R vs. star magnitude for a single NL parameter b (quadratic term) in various filters.  For a nominal b=3.6E-7, NL biases the size of the brightest useable stars in the High Latitude Survey by a few \\%.\
+%Bottom plot shows general relationship between size bias and b. To limit relative size bias of the brightest stars to ~10-4, b must be calibrated to better than 1\\%.\
+\
+% DC offsets which are intrinsic to the readout circuit and which vary from pixel to pixel\
+\
+%Something to keep in mind is that different pixels could have different underlying linearity coefficients but in practice its very hard to measure this with sufficient precision so we find ourselves using the mean pixel behavior and accepting a degree of mismatch between a pixel and the mean.  Does this matter?   Maybe not, but I think this is a good example where simulation is better than measurement since you can test whether biases are introduced.   \
+\
+%Nonlinear gain V(Q) depends on fluence (total charge/pixel), not flux (charge/pixel/second).  We can't use SPR to measure nonlinear gain because there's no independent measurement of Q.  We're not really measuring flux in the reciprocity failure case either, just a signal decay.\
+\
+\
+}
