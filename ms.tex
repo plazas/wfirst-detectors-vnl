@@ -142,7 +142,7 @@ N=\frac{2p}{\lambda_{min} F}
 where $p$ is the pixel size, $\lambda_{min}$ is the shortest wavelength in a given filter, and $F$ is the the f-number of the telescope. In the case of the \wfa\ telescope, $p=10\ \mu$m and $F=7.8$, resulting in $N\geq3$ ($N\geq2$) for the J129 (H158) band. Thus, we have chosen to set $N=3$ in our simulations
 %, which will produce a number of images similar to what the WL survey in \wf\ will use per exposure (5\textendash7 across two epochs). 
 to ensure oversampling.
-At this resolution, it will also be possible to study the impact of centroid shifts within the native pixels (since NL depends on the absolute pixel values it will also depend on where the star is centered within a particular pixel), and therefore for our simulations we randomly vary the PSF centroid within a native pixel. \textbf{[WHAT DOES THIS MEAN?]}
+At this resolution, it will also be possible to study the impact of centroid shifts within the native pixels (since NL depends on the absolute pixel values it will also depend on where the star is centered within a particular pixel), and therefore for our simulations we randomly vary the PSF centroid within a native pixel.
 
 Notice that this method to approximate oversampled images can only be used in the case of sensor effects such as NL, which only depend on each pixel individually. In the case of other effects that correlate the signal in one pixel with the signal of its neighbors (such as IPC), the effect should be applied to the native scale of the detector and then a properly sampled image should be generated through adequate combination of several dithered images before performing any analysis (see for instance the ``interleaving" algorithm of \citealt{kannawadi15}, also included in \gs). 
 
@@ -211,7 +211,7 @@ Apply the nonlinearity to the postage stamps according to the transformation $I 
 \item[5.] Measure the shape and size of the object with the sensor effect applied, and calculate the quantities $\Delta e_1$, $\Delta e_2$, and $\frac{\Delta R}{R}$, as defined in Eqs. \ref{delta_e} and \ref{delta_r}. 
 \item [6.] Repeat steps 1 to 5 %for different AB magnitudes (fluxes) at the nominal value $\beta_0$ and for different $\beta$ values at a fixed magnitude
 , averaging over 100 centroid realizations. The values reported will be the mean and the standard deviation over these realizations (see Fig. \ref{f2} and Fig. \ref{f3}).
-\item[7.] To study the impact of spatial variability in $\beta$, repeat steps 1 to 6 and assume that $\beta$ for each pixel can be drawn from a Gaussian distribution with some mean $\beta$ and variance $\sigma_{\beta}^2$. Over $M$ realizations (for a fixed centroid), calculate the dispersion values $\sigma_{\Delta e_1}$, $\sigma_{\Delta e_2}$, and $\sigma_{\Delta R/R}$ as a function of $\sigma_{\beta}$. In our simulations we use $M=100$ (see Fig. \ref{f4} and Fig. \ref{f5}). \textbf{[WHICH PIXELS SAMPLE BETA -- NATIVE OR OVERSAMPLED?]}
+\item[7.] To study the impact of spatial variability in $\beta$, repeat steps 1 to 6 and assume that $\beta$ for each high-resolution pixel can be drawn from a Gaussian distribution with some mean $\beta$ and variance $\sigma_{\beta}^2$. Over $M$ realizations (for a fixed centroid), calculate the dispersion values $\sigma_{\Delta e_1}$, $\sigma_{\Delta e_2}$, and $\sigma_{\Delta R/R}$ as a function of $\sigma_{\beta}$. In our simulations we use $M=100$ (see Fig. \ref{f4} and Fig. \ref{f5}). 
 
 \end{itemize}
 \section{Results}
