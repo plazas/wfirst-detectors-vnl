@@ -155,7 +155,7 @@ Notice that this method to approximate oversampled images can only be used in th
 \label{f1}
 \end{figure}
 
-The PSF profiles are drawn into squared postage stamps of size $1.5k$ pixels ($k=64$), large enough to ensure that most \textbf{[HOW MUCH]} of the total PSF flux is contained in the stamp. %In addition, this avoid biases in PSF determination arising from object selection and deblending. 
+The PSF profiles are drawn into squared postage stamps of size $1.5k$ pixels ($k=64$), large enough to ensure that most ($\sim 96\%$) of the total PSF flux is contained in the stamp. %In addition, this avoid biases in PSF determination arising from object selection and deblending. 
 Each profile object was assigned a total flux of 
 
 \begin{align}
@@ -213,7 +213,7 @@ Apply the nonlinearity to the postage stamps according to the transformation $I 
 \item[5.] Measure the shape and size of the object with the sensor effect applied, and calculate the quantities $\Delta e_1$, $\Delta e_2$, and $\frac{\Delta R}{R}$, as defined in Eqs. \ref{delta_e} and \ref{delta_r}. 
 \item [6.] Repeat steps 1 to 5 %for different AB magnitudes (fluxes) at the nominal value $\beta_0$ and for different $\beta$ values at a fixed magnitude
 , averaging over 100 centroid realizations. The values reported will be the mean and the standard deviation over these realizations (see Fig. \ref{f2} and Fig. \ref{f3}).
-\item[7.] To study the impact of spatial variability in $\beta$, repeat steps 1 to 6 and assume that $\beta$ for each pixel can be drawn from a Gaussian distribution with some mean $\beta$ and variance $\sigma_{\beta}^2$. Over $M$ realizations (for a fixed centroid), calculate the dispersion values $\sigma_{\Delta e_1}$, $\sigma_{\Delta e_2}$, and $\sigma_{\Delta R/R}$ as a function of $\sigma_{\beta}$. In our simulations we use $M=100$ (see Fig. \ref{f4} and Fig. \ref{f5}). \textbf{[WHICH PIXELS SAMPLE BETA -- NATIVE OR OVERSAMPLED?]}
+\item[7.] To study the impact of spatial variability in $\beta$, repeat steps 1 to 6 and assume that $\beta$ for each high-resolution pixel can be drawn from a Gaussian distribution with some mean $\beta$ and variance $\sigma_{\beta}^2$. Over $M$ realizations (for a fixed centroid), calculate the dispersion values $\sigma_{\Delta e_1}$, $\sigma_{\Delta e_2}$, and $\sigma_{\Delta R/R}$ as a function of $\sigma_{\beta}$. In our simulations we use $M=100$ (see Fig. \ref{f4} and Fig. \ref{f5}). 
 
 \end{itemize}
 \section{Results}
@@ -251,7 +251,12 @@ In Eq.\ref{calib}, $c$ represents the ordinate value in Fig. \ref{f3} for a give
 
 Under these conditions, Fig. \ref{f3} shows that for the brightest stars in our range, to limit the bias of $\Delta R/R$ ($\Delta e$) in the H158 band to $10^{-4}$  ($4.7\times 10^{-5}$)\textemdash about $10\%$ of the estimated \wf\ error budgets, $\beta$ must be calibrated to $\sim1\%$ ($\sim 2.4\%$) (using $c\sim2\times10^4 \mathrm{e^-}$ at $m=18.3$ from the upper panel of Fig. \ref{f3}, $c\sim4000$ at $m=18.3$ from the lower right panel of the same figure, and $\beta_0=5\times10^{-7}/\mathrm{e^-}$). For this error tolerance, if the required calibration cannot be achieved, then one must find a higher star magnitude with a less strict requirement.  Our choice of error tolerance here is somewhat arbitrary and only for illustration, and Eq. \ref{calib} and Fig. \ref{f3} should be used to derive detector requirements once true PSF requirements are known.
 
-The trends in Fig. \ref{f3} are clearly well-described by a power law with a common slope for the various filters.  We fit a function only to the PSF size trend since it will be a more robust characteristic of the  survey, whereas ellipticity can have relatively wide spatial variations.  For a power law of the form $\Delta R/ R/ \beta = A_{\text{F}} 10^{B_{\text{F}} (m - m_{0})}$ (for $m_0 =20$), the parameters $A_{\text{F}}$ and $B_{\text{F}}$ for each filter F are listed in Table 2. 
+The trends in Fig. \ref{f3} are clearly well-described by a power law with a common slope for the various filters.  We fit a function only to the PSF size trend since it will be a more robust characteristic of the  survey, whereas ellipticity can have relatively wide spatial variations.  For a power law of the form
+\begin{align}
+\frac{\Delta R/ R}{\beta} = A_{\text{F}} 10^{B_{\text{F}} (m - m_{0})} \ (m_0 =20), 
+\label{power_law}
+\end{align}
+the parameters $A_{\text{F}}$ and $B_{\text{F}}$ for each filter F are listed in Table 2. 
 
 \subsection{Impacts of spatial variability of $\beta$}
 We also studied the impact on $\Delta e$ and $\Delta R/R$ due to the dispersion in the $\beta$ parameter. Due to non-uniformities in fabrication, each pixel can have a different NL coefficient, and biases in the measurement of PSF properties could be introduced if a mean response curve is used to calibrate NL instead of a single curve per pixel. Fig. \ref{f4} shows the dispersion over $M=100$ realizations (for a fixed centroid) in the metrics $\Delta e_1$,  $\Delta e_2$, and  $\Delta R/R$  as a function of the standard deviation $ \sigma_{\beta_0}$, assuming that the coefficient $\beta$ is drawn from a distribution of the form $\mathcal{N} \sim (\beta_0, \sigma_{\beta_0})$. 
@@ -263,7 +268,11 @@ We also studied the impact on $\Delta e$ and $\Delta R/R$ due to the dispersion 
 The source magnitude is fixed at 18.3.}
 \label{f4}
 \end{figure}
-We found that the results in Fig. \ref{f4} are insensitive to the nominal $\beta$ and therefore, in general, $\sigma_{\beta}$  can be treated as an error on $\beta$ estimation. The linear relationships in Fig. \ref{f4} also allows us to plot the slope of each curve for different magnitudes, as was done in Fig. \ref{f3}, and therefore analogous equations to Eqn. \ref{calib} can be used to derive requirements on the maximum tolerable dispersion in size and ellipticity errors given a particular set of parameters and requirements. The results are shown in Fig. \ref{f5}. We also fitted a model of the form \textbf{[MAKE NUMBERED EQ]} $\sigma_{\Delta R/ R}/ \sigma_{\beta} = A_{\text{F}}10^{B_{\text{F}} (m - m_{0})}$ (for $m_0 =20$) for the PSF size trends in Fig. \ref{f5}, as was done above for Fig. \ref{f3}. The fit parameters are presented in Table 2 as well.  
+We found that the results in Fig. \ref{f4} are insensitive to the nominal $\beta$ and therefore, in general, $\sigma_{\beta}$  can be treated as an error on $\beta$ estimation. The linear relationships in Fig. \ref{f4} also allows us to plot the slope of each curve for different magnitudes, as was done in Fig. \ref{f3}, and therefore analogous equations to Eqn. \ref{calib} can be used to derive requirements on the maximum tolerable dispersion in size and ellipticity errors given a particular set of parameters and requirements. The results are shown in Fig. \ref{f5}. We also fitted a model of the form 
+\begin{align}
+\frac{\sigma_{\Delta R/ R}} {\sigma_{\beta}} = A_{\text{F}}10^{B_{\text{F}} (m - m_{0})} \ (m_0 =20)
+\end{align}
+for the PSF size trends in Fig. \ref{f5}, as was done above for Fig. \ref{f3} (\emph{c.f.}, Eqn. \ref{power_law}). The fit parameters are presented in Table 2 as well.  
 
 %Table 2
 \begin{table}
@@ -272,18 +281,18 @@ We found that the results in Fig. \ref{f4} are insensitive to the nominal $\beta
 \hline
 \multirow{2}{*}{Band} & \multicolumn{2}{c|}{size bias (Fig. \ref{f3})} & \multicolumn{2}{c|}{size scatter (Fig. \ref{f5})} \\
 \cline{2-5}
-& $A_{\text{F}} (\times 10^3)$ & $B_{\text{F}}$ & $\ A_{\text{F}} (\times 10^3)$ & $B_{\text{F}}$  \\
+& $A_{\text{F}}$ & $B_{\text{F}}$ & $\ A_{\text{F}}$ & $B_{\text{F}}$  \\
 \hline
-Y106 & 8.322 & -0.4086 & 5.057 &  -0.4045  \\
+Y106 & 8322 & -0.4086 & 5057 &  -0.4045  \\
 \hline
-J129 & 6.958 & -0.4089  & 4.215 &  -0.4050 \\
+J129 & 6958 & -0.4089  & 4215 &  -0.4050 \\
 \hline
-H158 & 4.668 & -0.4069 & 2.711 &  -0.4038 \\
+H158 & 4668 & -0.4069 & 2711 &  -0.4038 \\
 \hline
-F184 & 2.209 & -0.4035 & 1.194 &  -0.4018 \\
+F184 & 2209 & -0.4035 & 1194 &  -0.4018 \\
 \hline
 \end{tabular}
-\caption{Parameters resulting from fitting the curves in the upper panel of Figs. \ref{f3} and \ref{f5} to power-law functions of the form $\Delta R/ R/ \beta = A_{\text{F}}\ 10^{B_{\text{F}} (m - 20)}$ and $\sigma_{\Delta R/ R}/ \sigma_{\beta} = A_{\text{F}}\ 10^{B_{\text{F}} (m - 20)}$, respectively. \textbf{[THE x$10^3$ is confusing -- just use whole numbers?]}}
+\caption{Parameters resulting from fitting the curves in the upper panel of Figs. \ref{f3} and \ref{f5} to power-law functions of the form $\Delta R/ R/ \beta = A_{\text{F}}\ 10^{B_{\text{F}} (m - 20)}$ and $\sigma_{\Delta R/ R}/ \sigma_{\beta} = A_{\text{F}}\ 10^{B_{\text{F}} (m - 20)}$, respectively.}
 \label{table2}
 \end{table}
 
