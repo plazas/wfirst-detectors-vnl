@@ -1,4 +1,4 @@
-\begin{thebibliography}{56}
+\begin{thebibliography}{59}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -13,6 +13,14 @@ A.~{Albrecht}, G.~{Bernstein}, R.~{Cahn}, W.~L. {Freedman}, J.~{Hewitt},
   {Mather}, S.~{Staggs}, and N.~B. {Suntzeff}.
 \newblock {Report of the Dark Energy Task Force}.
 \newblock \emph{ArXiv Astrophysics e-prints}, September 2006.
+
+\bibitem[{Alsing} et~al.(2016){Alsing}, {Heavens}, {Jaffe}, {Kiessling},
+  {Wandelt}, and {Hoffmann}]{alsing16}
+J.~{Alsing}, A.~{Heavens}, A.~H. {Jaffe}, A.~{Kiessling}, B.~{Wandelt}, and
+  T.~{Hoffmann}.
+\newblock {Hierarchical cosmic shear power spectrum inference}.
+\newblock \emph{\mnras}, 455:\penalty0 4452--4466, February 2016.
+\newblock \doi{10.1093/mnras/stv2501}.
 
 \bibitem[{Amara} and {R{\'e}fr{\'e}gier}(2008)]{amara08}
 A.~{Amara} and A.~{R{\'e}fr{\'e}gier}.
@@ -414,6 +422,20 @@ J~E Meyers and P~R Burchat.
   2014.
 \newblock URL \url{http://stacks.iop.org/1748-0221/9/i=03/a=C03037}.
 
+\bibitem[{Miller} et~al.(2013){Miller}, {Heymans}, {Kitching}, {van Waerbeke},
+  {Erben}, {Hildebrandt}, {Hoekstra}, {Mellier}, {Rowe}, {Coupon}, {Dietrich},
+  {Fu}, {Harnois-D{\'e}raps}, {Hudson}, {Kilbinger}, {Kuijken}, {Schrabback},
+  {Semboloni}, {Vafaei}, and {Velander}]{miller13}
+L.~{Miller}, C.~{Heymans}, T.~D. {Kitching}, L.~{van Waerbeke}, T.~{Erben},
+  H.~{Hildebrandt}, H.~{Hoekstra}, Y.~{Mellier}, B.~T.~P. {Rowe}, J.~{Coupon},
+  J.~P. {Dietrich}, L.~{Fu}, J.~{Harnois-D{\'e}raps}, M.~J. {Hudson},
+  M.~{Kilbinger}, K.~{Kuijken}, T.~{Schrabback}, E.~{Semboloni}, S.~{Vafaei},
+  and M.~{Velander}.
+\newblock {Bayesian galaxy shape measurement for weak lensing surveys - III.
+  Application to the Canada-France-Hawaii Telescope Lensing Survey}.
+\newblock \emph{\mnras}, 429:\penalty0 2858--2880, March 2013.
+\newblock \doi{10.1093/mnras/sts454}.
+
 \bibitem[{Miyazaki} et~al.(2012){Miyazaki}, {Komiyama}, {Nakaya}, {Kamata},
   {Doi}, {Hamana}, {Karoji}, {Furusawa}, {Kawanomoto}, {Morokuma}, {Ishizuka},
   {Nariai}, {Tanaka}, {Uraguchi}, {Utsumi}, {Obuchi}, {Okura}, {Oguri},
@@ -441,11 +463,13 @@ S.~{Miyazaki}, Y.~{Komiyama}, H.~{Nakaya}, Y.~{Kamata}, Y.~{Doi}, T.~{Hamana},
   Instrumentation Engineers (SPIE) Conference Series}, page~0, September 2012.
 \newblock \doi{10.1117/12.926844}.
 
-\bibitem[{Noll}(1976)]{noll67}
-R.~J. {Noll}.
-\newblock {Zernike polynomials and atmospheric turbulence}.
-\newblock \emph{Journal of the Optical Society of America (1917-1983)},
-  66:\penalty0 207--211, March 1976.
+\bibitem[{Niemi} et~al.(2015){Niemi}, {Cropper}, {Szafraniec}, and
+  {Kitching}]{niemi15}
+S.-M. {Niemi}, M.~{Cropper}, M.~{Szafraniec}, and T.~{Kitching}.
+\newblock {Measuring a charge-coupled device point spread function. Euclid
+  visible instrument CCD273-84 PSF performance}.
+\newblock \emph{Experimental Astronomy}, 39:\penalty0 207--231, June 2015.
+\newblock \doi{10.1007/s10686-015-9440-7}.
 
 \bibitem[Pasquale~et al.(2014)]{pasquale14}
 Jeffrey Kruk David Vaughnn Qian Gong Joseph Howard Alden Jurling Len Seals Eric
@@ -477,6 +501,16 @@ A.~A. {Plazas}, G.~M. {Bernstein}, and E.~S. {Sheldon}.
   the Dark Energy Camera CCDs}.
 \newblock \emph{\pasp}, 126:\penalty0 750--760, September 2014.
 \newblock \doi{10.1086/677682}.
+
+\bibitem[{Prod'homme} et~al.(2014){Prod'homme}, {Verhoeve}, {Kohley}, {Short},
+  and {Boudin}]{prodhomme14}
+T.~{Prod'homme}, P.~{Verhoeve}, R.~{Kohley}, A.~{Short}, and N.~{Boudin}.
+\newblock {A comparative study of charge transfer inefficiency value and trap
+  parameter determination techniques making use of an irradiated ESA-Euclid
+  prototype CCD}.
+\newblock In \emph{High Energy, Optical, and Infrared Detectors for Astronomy
+  VI}, volume 9154 of \emph{\procspie}, page 915409, July 2014.
+\newblock \doi{10.1117/12.2054862}.
 
 \bibitem[R\'efr\'egier(2003)]{refregier03}
 A.~R\'efr\'egier.

@@ -4,7 +4,7 @@ The top-level auxiliary file: ms.aux
 The style file: plainnat.bst
 Database file #1: ms.bib
 Warning--entry type for "beletic08" isn't style-file defined
---line 230 of file ms.bib
+--line 306 of file ms.bib
 Too many commas in name 1 of "Pasquale et al., David Content, Jeffrey Kruk, David Vaughnn, Qian Gong, Joseph Howard, Alden Jurling, Len Seals, Eric Mentzell, Nerses Armani, Gary Kuan" for entry pasquale14
 while executing---line 1347 of file plainnat.bst
 Too many commas in name 1 of "Pasquale et al., David Content, Jeffrey Kruk, David Vaughnn, Qian Gong, Joseph Howard, Alden Jurling, Len Seals, Eric Mentzell, Nerses Armani, Gary Kuan" for entry pasquale14
@@ -74,45 +74,45 @@ Too many commas in name 1 of "Pasquale et al., David Content, Jeffrey Kruk, Davi
 while executing---line 1429 of file plainnat.bst
 Too many commas in name 1 of "Pasquale et al., David Content, Jeffrey Kruk, David Vaughnn, Qian Gong, Joseph Howard, Alden Jurling, Len Seals, Eric Mentzell, Nerses Armani, Gary Kuan" for entry pasquale14
 while executing---line 1429 of file plainnat.bst
-You've used 56 entries,
+You've used 59 entries,
             2773 wiz_defined-function locations,
-            903 strings with 25251 characters,
-and the built_in function-call counts, 56807 in all, are:
-= -- 4108
-> -- 7195
-< -- 31
-+ -- 2410
-- -- 2353
-* -- 5967
-:= -- 9695
-add.period$ -- 200
-call.type$ -- 56
-change.case$ -- 955
-chr.to.int$ -- 55
-cite$ -- 117
-duplicate$ -- 1131
-empty$ -- 1991
-format.name$ -- 2425
-if$ -- 10898
+            923 strings with 26472 characters,
+and the built_in function-call counts, 59753 in all, are:
+= -- 4341
+> -- 7512
+< -- 32
++ -- 2515
+- -- 2455
+* -- 6275
+:= -- 10165
+add.period$ -- 213
+call.type$ -- 59
+change.case$ -- 998
+chr.to.int$ -- 58
+cite$ -- 123
+duplicate$ -- 1212
+empty$ -- 2125
+format.name$ -- 2530
+if$ -- 11492
 int.to.chr$ -- 2
 int.to.str$ -- 1
-missing$ -- 50
-newline$ -- 320
-num.names$ -- 226
-pop$ -- 1820
+missing$ -- 53
+newline$ -- 339
+num.names$ -- 238
+pop$ -- 1900
 preamble$ -- 1
-purify$ -- 895
+purify$ -- 935
 quote$ -- 0
-skip$ -- 1429
+skip$ -- 1514
 stack$ -- 0
-substring$ -- 749
-swap$ -- 119
-text.length$ -- 6
+substring$ -- 821
+swap$ -- 141
+text.length$ -- 8
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 611
+type$ -- 644
 warning$ -- 5
-while$ -- 201
+while$ -- 213
 width$ -- 0
-write$ -- 785
+write$ -- 833
 (There were 32 error messages)

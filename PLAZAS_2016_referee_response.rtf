@@ -1,0 +1,69 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf110
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Verdana;\f2\froman\fcharset0 Times-Roman;
+}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww10500\viewh11860\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 We are very grateful to the referee for their detailed review of our paper, and for their useful comments and suggestions. We present below a detailed response to the referee\'92s report. \
+\
+REVIEWER:  
+\f1 \expnd0\expndtw0\kerning0
+The report describes the methodology in full. In some places the substantial level of detail for the creation of relatively standard image simulations (for example the use of which galsim routines, and, in some cases, the details within them) seems excessive and obscures the flow, while also being too specific, so some judicious shortening would beneficial. \
+\
+AUTHORS: We have simplified the text and deleted a few sentences in parts of Section 3 to improve the readability. However, we have chosen to leave the explicit mention to the GalSim routines that were used, in order to provide a useful reference to potential users of the galsim.wfirst module, and to allow the readers to potentially reproduce our analysis and results. \
+\
+REVIEWER:The text regarding the oversampling techniques could benefit from simplification and clarification. The summary at the end of section 3 is helpful in this regard, but it isn\'92t immediately evident (to this reader at least) from the text exactly what has been done, which in the end is fairly standard. 
+\f2  
+\f1 For example, in the paragraph containing equation (3), is it meant that the PSF is initially convolved with the pixel response at the native pixel scale, then simply regridded onto a 3x finer grid? If so, it\'92s not clear why the shape measurement routines should work an better on these images.  In any case, in the paragraph after equation (3), it would help clarifying that the shape measurement is performed on each of the 100 postage stamps separately to create a distribution of sizes and ellipticities. \
+\
+AUTHORS: In the analysis, the analytic 2D PSF profile is convolved with a pixel of native pixel scale \'93p\'94 before being drawn or rendered into a postage stamp of higher resolution p/N (N=3). As explained in the text, this is done to overcome the intrinsic under sampling of the PSF profile at the native WFIRST scale. In real data, several dithered exposures are taken and an image combination software must be used. However, in the case of NL, rendering the profile at a pixel scale of p/N suffices. We have chosen N=3 (which also satisfies the Nyqvist criterium) so that the total number of images is equal to N^2=9, similar to the actual number of dithers per exposure that will be used in the HLS of WFIRST (up to 8). \
+\
+In addition, we have found that the shape measurement algorithm that we use (adaptive moments, or \'93hsm\'94 in GalSim) does not usually converge for under sampled objects. \
+\
+We have reworded the sentence in the first paragraph after Eqn. (3) to read as follows:  \'93To mimic this behavior in our approximation,we create a PSF profile whose centroid coordinates are random numbers uniformly distributed over the size of a native detector pixel. We then render the profile at a higher resolution p/N and measure its average size and shape over 100 realizations.\'94
+\f2 \
+
+\f1 \
+\pard\pardeftab720\sl300\sa240\partightenfactor0
+\cf0 REVIEWER: Then in the first sentence of the 2nd paragraph after equation (4) is misleading, as it is understood that there are 100 postage stamps and only one entry per filter in Table 1. (The use of \'93random\'94 in this section of text would seem to be incorrect, as the offsets are distributed over a uniform grid.) In the middle of this paragraph it is stated that the centroid is randomised, but as this is already stated in the paragraph after equation (3), it gives the impression of an additional randomisation.\
+AUTHORS: We have reworded the sentence in that paragraph regarding the centroid. Instead, the text now reads: \'93As mentioned before, for each postage stamp in our calculations we select a centroid with random coordinates uniformly distributed within the native scale pixel.\'94\
+\
+REVIEWER: In step 2 of the summary in section 3.3, what is meant by the first word \'93Draw\'94?. \
+AUTHORS: In this context, it is synonym with \'93render\'94. We have added in parentheses the sentence: \'93\\emph\{i.e.\}, render\'94\
+\
+REVIEWER: Also, the last sentence is confusing: would it be correct to write that \'93The centroid of the profile will be selected from points on a uniform grid within the native pixel.\'94? \
+AUTHORS: Each Cartesian coordinate of the centroid is a random variable drawn from a uniform probability distribution whose domain is [0, p], where p is the native pixel scale. We have reworded the last sentence of that step to read: \'93In addition, each coordinate of the PSF centroid is a random number drawn from a uniform distribution within the native resolution pixel.\'94\
+\
+REVIEWER: Then in step 6, it would help specifically saying that the values are the size and ellipticity components. Other improvements may be considered where helpful. 
+\f2 \
+
+\f1 AUTHORS:  We have included the suggestion by the referee. \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\pard\pardeftab720\sl300\sa240\partightenfactor0
+\cf0 REVIEWER: In the paragraph after equation (12), it is not clear what is meant in the sentence starting \'93For this error tolerance...\'94, or how this might be useful. \
+AUTHORS: The sentence serves as the conditional for the assertion \'93\'85one must find a higher star magnitude with a less strict requirement.\'94 This means that the conclusion is valid only for the particular error budget cited earlier in the paragraph (which serve as a plausible example), and that different error tolerances for size and shape will lead to differences in the maximum star brightness that can be used. \
+\
+REVIEWER: Just above equation (14), while it is mentioned that requirements can be derived on the maximum tolerable dispersion, this is not explicitly calculated, unlike as done in the paragraph after equation (12). It would be interesting if this could be done. 
+\f2 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f1 \cf0 AUTHORS: In the paragraph after equation (12) we used error (absolute error in ellipticity and fractional error in size) tolerances quoted in the WFIRST Science Definition Team report (Spergel et al 2015) to give a realistic example of how equation 12 could be used to estimate NL impacts. Equation 14 can be used in an analogous manner, but since the SDT report does not quote errors on the dispersions of the metrics studied, we have chosen to leave the substitution of particular values into Eon. (14) for when such tolerances are available.  \
+\
+\
+\pard\pardeftab720\sl300\sa240\partightenfactor0
+\cf0 REVIEWER: Some particular points:\uc0\u8232  \'95 in footnote 1, other references might include Miller et al (2013) (DOI:10.1093/mnras/sts454) and Alsing et al (2016) (DOI: 10.1093/mnras/stv2501)\u8232 \'95 in paragraph 3 of section 1, the extensive study of systematic errors from CCDs extends beyond those for thick high resistivity devices. References might include Prod\'92homme et al (2014) (DOI: 10.1117/12.2054862) and Niemi et al (2015) (DOI: 10.1007/s10686-015-9440-7);\u8232 \'95 in paragraph 2 of section 3.1, the 30% value for the central obscuration should be specified as a linear value;\u8232 \'95 a reference should be given for equation (1). 
+\f2 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f1 \cf0 AUTHORS: We have included the suggested references, and added in parentheses a clarification for the linear obscuration. Equation (1) is motivated in the paragraphs that follow, where we find a good fit to a wide charge range. References in the literature (e.g., Hilbert 2014) use corrections with higher orders, but as explained in the text, a quadratic formula suffices for the scope of the paper. \
+\
+
+\f2 \
+
+\f1 REVIEWER: Editorially, the text is well written. In case this might be useful:\uc0\u8232 \'95 in the 1st paragraph of section 1, \'93allow to test\'94 might be better \'93allows the testing >of\'94;\u8232 \'95 in the 3rd paragraph of section 2, \'93by\'94 should be added after \'93band gap\'94;\u8232 \'95 just below equation (2), \'93plug in\'94 would be better as \'93substitute\'94;\u8232 \'95 in the 3rd paragraph of section 3.1, \'93impact NL\'94 should contain \'93of\'94;\u8232 \'95 in the paragraph above equation (4), the first sentence might end better as \'93...which depend individually on each pixel.\'94\'94. 
+\f2 \
+\
+
+\f1 AUTHORS: We have added these corrections in the text. }
